@@ -1,0 +1,34 @@
+import React, { useEffect, useState, useContext } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
+import AuthStack from './AuthStack';
+import HomeStack from './HomeStack';
+
+export default function RootNavigator() {
+  const [isLoading, setIsLoading] = useState(true);
+  const { user, setUser } = useContext(AuthenticatedUserContext);
+
+  useEffect(() => {
+    AsyncStorage.getItem("@user").then(u => {
+      setUser(u);
+      setIsLoading(false)
+    });
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="small" color="#0000ff" />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      {user ? <HomeStack /> : <AuthStack />}
+    </NavigationContainer>
+  );
+}
