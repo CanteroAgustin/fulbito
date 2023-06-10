@@ -1,6 +1,5 @@
 import { useEffect, useContext, useState } from 'react'
-import { StyleSheet, View, Modal, Pressable, Text, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StyleSheet, View, Text } from 'react-native';
 import UserAvatar from 'react-native-user-avatar';
 import { useForm, Controller } from "react-hook-form";
 
@@ -8,17 +7,16 @@ import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser'
 import * as Google from 'expo-auth-session/providers/google'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
-import Input from '@mui/material/Input';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import { FormControl } from '@mui/material';
+import { FormControl, List, ListItem, MenuItem, InputLabel, Select, Button, TextField } from '@mui/material';
 
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
+import { db } from '../../config/firebase';
+import { setDoc, doc, onSnapshot, getDoc } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -36,7 +34,7 @@ export default function LoginPage() {
   });
 
   const handleChange = (event) => {
-    setPosition(event.target.value);
+    setPosicion(event.target.value);
   };
 
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -50,13 +48,8 @@ export default function LoginPage() {
   }, [response])
 
   async function handleSignInWithGoogle() {
-    const user = await AsyncStorage.getItem("@user");
-    if (!user) {
-      if (response?.type === "success") {
-        await getUserInfo(response.authentication.accessToken);
-      }
-    } else {
-      setUser(user);
+    if (response?.type === "success") {
+      await getUserInfo(response.authentication.accessToken);
     }
   }
 
@@ -69,77 +62,91 @@ export default function LoginPage() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const user = await response.json();
-      setTempUser(user);
-      await AsyncStorage.setItem('@user', JSON.stringify(user));
-      setModalVisible(true);
+      const userInfo = await response.json();
+      setTempUser(userInfo);
+      const docRef = doc(db, "usuarios", userInfo.id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setUser(docSnap.data());
+        AsyncStorage.setItem('@user', JSON.stringify(docSnap.data()));
+      } else {
+        setModalVisible(true);
+      }
     } catch (error) {
 
     }
   };
 
   const handleSubmitModal = data => {
-    console.log(data);
-    setUser(tempUser);
-    setModalVisible(!modalVisible)
+    setDBUser(data);
   };
+
+  const setDBUser = async data => {
+    await setDoc(doc(db, "usuarios", tempUser.id), {
+      ...tempUser,
+      "apodo": data.apodo,
+      posicion
+    });
+    const unsub = onSnapshot(doc(db, "usuarios", tempUser.id), (doc) => {
+      setUser({ ...doc.data() });
+      AsyncStorage.setItem('@user', JSON.stringify(...docSnap.data()));
+    });
+  }
 
   return (
     <View style={styles.container}>
-      {request && <FontAwesome.Button disabled={!request} name="google" backgroundColor="#4285F4" style={{ fontFamily: "Roboto" }} onPress={() => {
+      {!modalVisible && <FontAwesome.Button disabled={!request} name="google" backgroundColor="#4285F4" style={{ fontFamily: "Roboto" }} onPress={() => {
         promptAsync();
       }}>
         Login with Google
       </FontAwesome.Button>}
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {tempUser && <UserAvatar size={100} src={tempUser.picture} />}
-            <Text style={styles.text}>Completa tu perfil de jugador.</Text>
-            <form style={{ height: '100%' }} onSubmit={handleSubmit(handleSubmitModal)}>
-              <Controller
-                name="apodo"
-                control={control}
-                render={({ field }) => <Input {...field} />}
-              />
-              <p>{errors.apodo?.message}</p>
-
-              <Controller
-                name="select"
-                control={control}
-                render={({ field }) => <FormControl required sx={{ m: 1, minWidth: 120 }}>
-                  <InputLabel id="demo-controlled-open-select-label">Posicion</InputLabel>
-                  <Select
-                    {...field}
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={posicion}
-                    label="Posicion *"
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={'arquero'}>Arquero</MenuItem>
-                    <MenuItem value={'defensor'}>Defensor</MenuItem>
-                    <MenuItem value={'medio'}>Medio</MenuItem>
-                    <MenuItem value={'delantero'}>Delantero</MenuItem>
-                  </Select>
-                </FormControl>
-                }
-              />
-              <input type="submit" />
-            </form>
-          </View>
+      {modalVisible && <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          {tempUser && <UserAvatar size={100} src={tempUser.picture} />}
+          <Text style={styles.text}>Completa tu perfil de jugador.</Text>
+          <form style={{ height: '100%' }} onSubmit={handleSubmit(handleSubmitModal)}>
+            <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+              <ListItem>
+                <Controller
+                  name="apodo"
+                  control={control}
+                  render={({ field }) => <TextField {...field} id="outlined-basic" label="Apodo" variant="outlined" />}
+                />
+              </ListItem>
+              <ListItem>
+                <Controller
+                  name="select"
+                  control={control}
+                  render={({ field }) => <FormControl required sx={{ minWidth: '100%' }}>
+                    <InputLabel id="demo-controlled-open-select-label">Posicion</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="demo-controlled-open-select-label"
+                      id="demo-controlled-open-select"
+                      value={posicion}
+                      label="Posicion *"
+                      onChange={handleChange}
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value={'arquero'}>Arquero</MenuItem>
+                      <MenuItem value={'defensor'}>Defensor</MenuItem>
+                      <MenuItem value={'medio'}>Medio</MenuItem>
+                      <MenuItem value={'delantero'}>Delantero</MenuItem>
+                    </Select>
+                  </FormControl>
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <Button type="submit" variant="contained" sx={{ minWidth: '100%' }}>Finalizar</Button>
+              </ListItem>
+            </List>
+          </form>
         </View>
-      </Modal>
+      </View>}
 
 
       <StatusBar style="auto" />
