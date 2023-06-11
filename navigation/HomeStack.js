@@ -2,8 +2,7 @@ import React, { useContext } from "react";
 import { StyleSheet, Pressable } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { IconButton } from 'react-native-paper';
 
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import HomePage from "../pages/HomePage";
@@ -29,9 +28,11 @@ export default function HomeStack() {
         headerRightContainerStyle: styles.headerRight,
         headerStyle: { backgroundColor: "papayawhip" },
         headerRight: () => (
-          <Pressable onPress={handleSignOut}>
-            <ExitToAppIcon />
-          </Pressable>
+          <IconButton
+            icon="logout"
+            size={20}
+            onPress={handleSignOut}
+          />
         ),
       }}>
       <Stack.Screen name="Home" component={HomePage} />
