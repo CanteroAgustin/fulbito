@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import AuthStack from './AuthStack';
 import HomeStack from './HomeStack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function RootNavigator() {
   const [isLoading, setIsLoading] = useState(true);

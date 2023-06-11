@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet, View, Text, Button, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
@@ -7,6 +7,7 @@ import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvide
 export default function HomeScreen() {
 
   const { user, setUser } = useContext(AuthenticatedUserContext);
+  const image = { uri: 'https://reactjs.org/logo-og.png' };
 
   const handleSignOut = async () => {
     try {
@@ -19,8 +20,11 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text>{JSON.stringify(user, null, 2)}</Text>
-      <Button onPress={handleSignOut} title='Salir'></Button>
+      <ImageBackground source={require('../assets/background.jpeg')} resizeMode="cover" style={styles.image}>
+        <Text>{JSON.stringify(user, null, 2)}</Text>
+        <Button onPress={handleSignOut} title='Salir'></Button>
+      </ImageBackground>
+
     </View>
   );
 }
@@ -29,5 +33,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#e8eaf6',
+  },
+  image: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });

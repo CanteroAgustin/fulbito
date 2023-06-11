@@ -2,20 +2,22 @@ import { useEffect, useContext, useState } from 'react'
 import { StyleSheet, View, Text } from 'react-native';
 import UserAvatar from 'react-native-user-avatar';
 import { useForm, Controller } from "react-hook-form";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser'
 import * as Google from 'expo-auth-session/providers/google'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { FormControl, List, ListItem, MenuItem, InputLabel, Select, Button, TextField } from '@mui/material';
 
+import { FormControl, List, ListItem, MenuItem, InputLabel, Select, Button, TextField } from '@mui/material';
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
+import { setDoc, doc, onSnapshot, getDoc } from "firebase/firestore";
 
 import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
 import { db } from '../../config/firebase';
-import { setDoc, doc, onSnapshot, getDoc } from "firebase/firestore";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 
 WebBrowser.maybeCompleteAuthSession();
@@ -55,25 +57,21 @@ export default function LoginPage() {
 
   const getUserInfo = async (token) => {
     if (!token) return;
-    try {
-      const response = await fetch(
-        "https://www.googleapis.com/userinfo/v2/me",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const userInfo = await response.json();
-      setTempUser(userInfo);
-      const docRef = doc(db, "usuarios", userInfo.id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUser(docSnap.data());
-        AsyncStorage.setItem('@user', JSON.stringify(docSnap.data()));
-      } else {
-        setModalVisible(true);
+    const response = await fetch(
+      "https://www.googleapis.com/userinfo/v2/me",
+      {
+        headers: { Authorization: `Bearer ${token}` },
       }
-    } catch (error) {
-
+    );
+    const userInfo = await response.json();
+    setTempUser(userInfo);
+    const docRef = doc(db, "usuarios", userInfo.id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      setUser(docSnap.data());
+      AsyncStorage.setItem('@user', JSON.stringify(docSnap.data()));
+    } else {
+      setModalVisible(true);
     }
   };
 
