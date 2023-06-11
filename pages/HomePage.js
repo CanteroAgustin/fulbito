@@ -1,30 +1,44 @@
-import React, { useState, useContext } from 'react';
-import { StyleSheet, View, Text, Button, ImageBackground } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
+import { BottomNavigation } from 'react-native-paper';
+
+import Jugadores from './Jugadores';
+import Partidos from './Partidos';
+import Estadisticas from './Estadisticas';
+import Notificaciones from './Notificaciones';
+
+const JugadoresRoute = () => <Jugadores />;
+
+const PartidosRoute = () => <Partidos />;
+
+const EstadisticasRoute = () => <Estadisticas />;
+
+const NotificacionesRoute = () => <Notificaciones />;
 
 export default function HomeScreen() {
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: 'jugadores', title: 'Jugadores', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
+    { key: 'partidos', title: 'Partidos', focusedIcon: 'soccer-field' },
+    { key: 'estadisticas', title: 'Estadisticas', focusedIcon: 'star', unfocusedIcon: 'star-outline' },
+    { key: 'notificaciones', title: 'Notificaciones', focusedIcon: 'bell', unfocusedIcon: 'bell-outline' },
+  ]);
 
-  const { user, setUser } = useContext(AuthenticatedUserContext);
-  const image = { uri: 'https://reactjs.org/logo-og.png' };
-
-  const handleSignOut = async () => {
-    try {
-      AsyncStorage.removeItem("@user");
-      setUser(null);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const renderScene = BottomNavigation.SceneMap({
+    jugadores: JugadoresRoute,
+    partidos: PartidosRoute,
+    estadisticas: EstadisticasRoute,
+    notificaciones: NotificacionesRoute,
+  });
 
   return (
     <View style={styles.container}>
-      <ImageBackground source={require('../assets/background.jpeg')} resizeMode="cover" style={styles.image}>
-        <Text>{JSON.stringify(user, null, 2)}</Text>
-        <Button onPress={handleSignOut} title='Salir'></Button>
-      </ImageBackground>
-
+      <BottomNavigation
+        navigationState={{ index, routes }}
+        onIndexChange={setIndex}
+        renderScene={renderScene}
+      />
     </View>
   );
 }
