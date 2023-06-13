@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function Partidos() {
   return (
     <View style={styles.container}>
-      <Text>Partidos</Text>
+      <Text>Proximamente!!!</Text>
       <StatusBar style="auto" />
     </View>
   );

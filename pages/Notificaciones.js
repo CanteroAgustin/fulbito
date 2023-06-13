@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function Jugadores() {
   return (
     <View style={styles.container}>
-      <Text>Notificaciones</Text>
+      <Text>Proximamente!!!</Text>
       <StatusBar style="auto" />
     </View>
   );

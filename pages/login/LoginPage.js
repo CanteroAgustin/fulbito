@@ -17,9 +17,6 @@ import { setDoc, doc, onSnapshot, getDoc } from "firebase/firestore";
 import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
 import { db } from '../../config/firebase';
 
-
-
-
 WebBrowser.maybeCompleteAuthSession();
 
 const schema = yup.object({
@@ -83,11 +80,19 @@ export default function LoginPage() {
     await setDoc(doc(db, "usuarios", tempUser.id), {
       ...tempUser,
       "apodo": data.apodo,
+      "status": "ACTIVE",
+      "estadisticas": {
+        "ganados": 0,
+        "empatados": 0,
+        "perdidos": 0,
+        "jugados": 0,
+        "puntos": 0,
+      },
       posicion
     });
     const unsub = onSnapshot(doc(db, "usuarios", tempUser.id), (doc) => {
       setUser({ ...doc.data() });
-      AsyncStorage.setItem('@user', JSON.stringify(...docSnap.data()));
+      AsyncStorage.setItem('@user', JSON.stringify(...doc.data()));
     });
   }
 

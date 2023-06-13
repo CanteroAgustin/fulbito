@@ -25,12 +25,13 @@ export default function HomeStack() {
   return (
     <Stack.Navigator
       screenOptions={{
+        title: '',
         headerRightContainerStyle: styles.headerRight,
-        headerStyle: { backgroundColor: "papayawhip" },
+        headerStyle: {},
         headerRight: () => (
           <IconButton
             icon="logout"
-            size={20}
+            size={30}
             onPress={handleSignOut}
           />
         ),
@@ -42,6 +43,6 @@ export default function HomeStack() {
 
 const styles = StyleSheet.create({
   headerRight: {
-    paddingRight: 30,
+    paddingRight: 20,
   },
 });
