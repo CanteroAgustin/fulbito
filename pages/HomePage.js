@@ -41,6 +41,7 @@ export default function HomeScreen() {
           navigationState={{ index, routes }}
           onIndexChange={setIndex}
           renderScene={renderScene}
+          barStyle={styles.bottomNavigation}
         />
       </ImageBackground>
     </View>
@@ -56,4 +57,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     justifyContent: 'center',
   },
+  bottomNavigation: {
+    backgroundColor: '#E8F5E9'
+  }
 });

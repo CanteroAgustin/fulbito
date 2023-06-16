@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.agustin721.fulbito"
@@ -26,6 +28,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "beto"
+    "scheme": "beto",
+    "plugins": [
+      "expo-localization"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "499b4638-abd9-4f68-a0c6-ebe0041706f0"
+      }
+    }
   }
 }

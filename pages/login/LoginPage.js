@@ -10,18 +10,14 @@ import * as Google from 'expo-auth-session/providers/google'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { FormControl, List, ListItem, MenuItem, InputLabel, Select, Button, TextField } from '@mui/material';
-import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setDoc, doc, onSnapshot, getDoc } from "firebase/firestore";
 
+import loginValidationSchema from '../../schemas/login-schema';
 import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
 import { db } from '../../config/firebase';
 
 WebBrowser.maybeCompleteAuthSession();
-
-const schema = yup.object({
-  apodo: yup.string().required(),
-}).required();
 
 export default function LoginPage() {
   const { user, setUser } = useContext(AuthenticatedUserContext);
@@ -29,7 +25,7 @@ export default function LoginPage() {
   const [tempUser, setTempUser] = useState(null);
   const [posicion, setPosicion] = useState('');
   const { control, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(loginValidationSchema)
   });
 
   const handleChange = (event) => {
@@ -114,7 +110,7 @@ export default function LoginPage() {
                 <Controller
                   name="apodo"
                   control={control}
-                  render={({ field }) => <TextField {...field} id="outlined-basic" label="Apodo" variant="outlined" />}
+                  render={({ field }) => <TextField required {...field} id="outlined-basic" label="Nombre para mostrar" variant="outlined" />}
                 />
               </ListItem>
               <ListItem>
