@@ -30,6 +30,7 @@ export default function HomeStack() {
         headerStyle: {},
         headerRight: () => (
           <IconButton
+            iconColor="#1B5E20"
             icon="logout"
             size={30}
             onPress={handleSignOut}

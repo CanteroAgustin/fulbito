@@ -1,8 +1,8 @@
-import react, { useEffect, useState } from 'react'
-import { StyleSheet, View, Text, Platform } from 'react-native';
-import { Card, Avatar, IconButton, Surface, Badge } from 'react-native-paper';
+import { useEffect, useState } from 'react'
+import { StyleSheet, View, Text } from 'react-native';
+import { Avatar, Surface, Badge } from 'react-native-paper';
 
-import { query, collection, onSnapshot, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 import { db } from '../config/firebase';
 
@@ -11,7 +11,6 @@ export default function Jugadores(props) {
 
   useEffect(() => {
     getUsers();
-
   }, []);
 
   const getUsers = async () => {
@@ -25,14 +24,14 @@ export default function Jugadores(props) {
 
   return (
     <View style={styles.container}>
-      {jugadores.map((item, index) => {
+      {jugadores.map(item => {
         return (
-          <Surface style={Platform.OS === 'web' ? styles.surfaceWeb : styles.surface} elevation={4} key={item.id}>
+          <Surface style={styles.surface} elevation={4} key={item.id}>
             <Avatar.Image style={styles.avatar} {...props} size={48} source={{
               uri: item.picture,
             }} />
             <View style={styles.cardContainer}>
-              <Text style={styles.textApodo}>{item.apodo}</Text>
+              <Text style={styles.textApodo}>{item.apodo} - {item.posicion}</Text>
               <View style={styles.badgesContainer}>
                 <Badge size={25} style={styles.badge}>J: {item.estadisticas.jugados}</Badge>
                 <Badge size={25} style={styles.badge}>G: {item.estadisticas.ganados}</Badge>
@@ -90,8 +89,10 @@ const styles = StyleSheet.create({
   badgePuntos: {
     alignSelf: 'center',
     marginLeft: 'auto',
+    backgroundColor: '#1B5E20'
   },
   badge: {
     margin: 1,
+    backgroundColor: '#A5D6A7'
   }
 });
