@@ -7,24 +7,24 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from '../config/firebase';
 
 export default function Jugadores(props) {
-  const [jugadores, setJugadores] = useState([]);
+  const [players, setPlayers] = useState([]);
 
   useEffect(() => {
-    getUsers();
+    getPlayers();
   }, []);
 
-  const getUsers = async () => {
+  const getPlayers = async () => {
     const dbRef = collection(db, "usuarios");
     onSnapshot(dbRef, docsSnap => {
       docsSnap.forEach(doc => {
-        setJugadores(jugadores => [...jugadores, doc.data()]);
+        setPlayers(players => [...players, doc.data()]);
       })
     });
   }
 
   return (
     <View style={styles.container}>
-      {jugadores.map(item => {
+      {players.map(item => {
         return (
           <Surface style={styles.surface} elevation={4} key={item.id}>
             <Avatar.Image style={styles.avatar} {...props} size={48} source={{

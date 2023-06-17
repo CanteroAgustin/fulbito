@@ -1,42 +1,70 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Text, TextInput, FAB, List, Button } from 'react-native-paper';
+import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider } from 'react-native-paper';
 import { TimePickerModal, DatePickerModal, enGB, registerTranslation } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
+
 import { setDoc, doc, collection, onSnapshot } from "firebase/firestore";
 import { Formik } from 'formik';
 import dayjs from 'dayjs';
 
-import partidosValidationSchema from '../schemas/partidos-schema';
+import matchesValidationSchema from '../schemas/matches-schema';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import { db } from '../config/firebase';
-import { useEffect } from 'react';
 
 registerTranslation('en-GB', enGB)
 
-export default function Partidos() {
-  const { user, setUser } = useContext(AuthenticatedUserContext);
-  const [partidos, setPartidos] = useState([]);
+export default function matches() {
+  const { user } = useContext(AuthenticatedUserContext);
+  const [matches, setmatches] = useState([]);
   const [shouldShowForm, setShouldShowForm] = useState(false);
   const [visible, setVisible] = useState(false)
   const [date, setDate] = useState(undefined);
   const [hour, setHour] = useState('19');
   const [minutes, setMinutes] = useState('00');
   const [open, setOpen] = useState(false);
+  const [players, setPlayers] = useState([]);
+  const [teamsReady, setTeamsReady] = useState(false);
+  const [teamOne, setTeamOne] = useState([]);
+  const [teamTwo, setTeamTwo] = useState([]);
 
   useEffect(() => {
     getMatchs();
+    getPlayers();
   }, [])
 
-  const getMatchs = async () => {
-    const dbRef = collection(db, "partidos");
+  const getPlayers = async () => {
+    const dbRef = collection(db, "usuarios");
     onSnapshot(dbRef, docsSnap => {
       docsSnap.forEach(doc => {
-        setPartidos(partidos => [...partidos, doc.data()]);
+        setPlayers(players => [...players, doc.data()]);
       })
     });
   }
+
+  const getMatchs = async () => {
+    const dbRef = collection(db, "matches");
+    onSnapshot(dbRef, docsSnap => {
+      setmatches([]);
+      docsSnap.forEach(doc => {
+        setmatches(matches => [...matches, doc.data()]);
+      })
+    });
+  }
+
+  const addMeToMatch = async (id) => {
+    const match = getMatchByID(id);
+    if (!playerAlreadyExist(match.players)) {
+      match.players.push(user);
+      await setDoc(doc(db, "matches", id), { ...match });
+    }
+
+  }
+
+  const playerAlreadyExist = (playersInMatch) => playersInMatch.find(player => player.id === user.id);
+
+  const getMatchByID = (id) => matches.find(match => match.id === id);
 
   const onDismiss = useCallback(() => {
     setVisible(false)
@@ -64,15 +92,15 @@ export default function Partidos() {
   );
 
   const createMatch = async values => {
-    const fecha = dayjs(date).format('DD-MM-YYYY') + "-" + hour + ":" + minutes + "hs"
+    const fecha = dayjs(date).format('DD-MM-YYYY') + " " + hour + ":" + minutes + "hs"
     const id = `${user.id}-${values.lugar}-${fecha}`
-    await setDoc(doc(db, "partidos", id), {
+    await setDoc(doc(db, "matches", id), {
       "id": id,
       "fecha": fecha,
       "lugar": values.lugar,
       "organizador": user.apodo,
       "status": 'pendiente',
-      "jugadores": []
+      "players": []
     });
     setShouldShowForm(false);
   }
@@ -82,7 +110,7 @@ export default function Partidos() {
     <View style={styles.container}>
       {shouldShowForm ? <View style={styles.formikContainer}>
         <Formik
-          validationSchema={partidosValidationSchema}
+          validationSchema={matchesValidationSchema}
           style={styles.formik}
           initialValues={{ lugar: '' }}
           onSubmit={values => createMatch(values)}
@@ -137,12 +165,52 @@ export default function Partidos() {
       </View> :
         <>
           <List.AccordionGroup>
-            {partidos.map((item, index) => {
+            {matches.map((item, index) => {
               return (
                 <View key={item.id}>
-                  <List.Accordion left={props => <List.Icon {...props} icon="soccer" color='#1B5E20' />} style={styles.accordion} titleStyle={styles.acordeonTitle} title={`${item.lugar} - ${item.fecha}`} id={item.id + index}>
-                    <Text>Sarasa</Text>
-                    <List.Item title={item.fecha} ></List.Item>
+                  <List.Accordion left={props => <List.Icon {...props} icon="soccer" color='#1B5E20' />} style={styles.accordion} titleStyle={styles.acordeonTitle} title={`${item.lugar} ${item.fecha}`} id={item.id + index}>
+                    <View style={styles.matchInformation}>
+                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Organizador:</Text><Text> {item.organizador}</Text></View>
+                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Fecha:</Text><Text> {item.fecha}</Text></View>
+                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Lugar:</Text><Text> {item.lugar}</Text></View>
+                    </View>
+
+                    <Divider />
+                    {!teamsReady ? <>
+                      <View style={styles.playerListContainer}>
+                        <Text style={styles.playerListTitle}>Jugadores:</Text>
+                        <IconButton
+                          icon="account-plus"
+                          iconColor='#1B5E20'
+                          size={20}
+                          mode="contained-tonal"
+                          onPress={() => addMeToMatch(item.id)}
+                        />
+                      </View>
+                      {item.players.map((item, index) => {
+                        return (
+                          <Chip mode='outlined' icon="account" onPress={() => console.log('Pressed')}>{index + 1}-{item.apodo}</Chip>
+                        )
+                      })}
+                    </> :
+                      <View>
+                        {teamOne.map((item) => {
+                          return (
+                            <>
+                              <Text>Equipo 1</Text>
+                              <Text>{item.apodo} - {item.posicion}</Text>
+                            </>
+                          )
+                        })}
+                        {teamTwo.map((item) => {
+                          return (
+                            <>
+                              <Text>Equipo 2</Text>
+                              <Text>{item.apodo} - {item.posicion}</Text>
+                            </>
+                          )
+                        })}
+                      </View>}
                   </List.Accordion>
                 </View>
               );
@@ -208,5 +276,22 @@ const styles = StyleSheet.create({
   dateButtons: {
     paddingTop: 20,
     paddingHorizontal: 5
+  },
+  listAccordionTextView: {
+    flexDirection: 'row',
+    paddingLeft: 0
+  },
+  listAccordionTextLeft: {
+    fontWeight: 'bold',
+    color: '#388E3C'
+  },
+  playerListContainer: {
+    flexDirection: 'row'
+  },
+  playerListTitle: {
+    alignSelf: 'center'
+  },
+  matchInformation: {
+    paddingVertical: 20
   }
 });

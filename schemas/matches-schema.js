@@ -1,9 +1,9 @@
 import * as yup from 'yup'
 
-const partidosValidationSchema = yup.object().shape({
+const matchesValidationSchema = yup.object().shape({
   lugar: yup
     .string()
     .required('El lugar no puede quedar vacio!!!'),
 })
 
-export default partidosValidationSchema;
+export default matchesValidationSchema;

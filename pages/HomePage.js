@@ -4,7 +4,7 @@ import { StyleSheet, View, ImageBackground } from 'react-native';
 import { BottomNavigation } from 'react-native-paper';
 
 import Jugadores from './Jugadores';
-import Partidos from './Partidos';
+import Matches from './Matches';
 import Estadisticas from './Estadisticas';
 import Notificaciones from './Notificaciones';
 
@@ -14,14 +14,14 @@ export default function HomeScreen() {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'jugadores', title: 'Jugadores', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
-    { key: 'partidos', title: 'Partidos', focusedIcon: 'soccer-field' },
+    { key: 'matches', title: 'Partidos', focusedIcon: 'soccer-field' },
     { key: 'estadisticas', title: 'Estadisticas', focusedIcon: 'star', unfocusedIcon: 'star-outline' },
     { key: 'notificaciones', title: 'Notificaciones', focusedIcon: 'bell', unfocusedIcon: 'bell-outline' },
   ]);
 
   const JugadoresRoute = () => <Jugadores />;
 
-  const PartidosRoute = () => <Partidos />;
+  const MatchesRoute = () => <Matches />;
 
   const EstadisticasRoute = () => <Estadisticas />;
 
@@ -29,7 +29,7 @@ export default function HomeScreen() {
 
   const renderScene = BottomNavigation.SceneMap({
     jugadores: JugadoresRoute,
-    partidos: PartidosRoute,
+    matches: MatchesRoute,
     estadisticas: EstadisticasRoute,
     notificaciones: NotificacionesRoute,
   });
