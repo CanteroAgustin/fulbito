@@ -12,12 +12,13 @@ import dayjs from 'dayjs';
 import matchesValidationSchema from '../schemas/matches-schema';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import { db } from '../config/firebase';
+import { margin } from '@mui/system';
 
 registerTranslation('en-GB', enGB)
 
 export default function matches() {
   const { user } = useContext(AuthenticatedUserContext);
-  const [matches, setmatches] = useState([]);
+  const [matches, setMatches] = useState([]);
   const [shouldShowForm, setShouldShowForm] = useState(false);
   const [visible, setVisible] = useState(false)
   const [date, setDate] = useState(undefined);
@@ -46,25 +47,12 @@ export default function matches() {
   const getMatchs = async () => {
     const dbRef = collection(db, "matches");
     onSnapshot(dbRef, docsSnap => {
-      setmatches([]);
+      setMatches([]);
       docsSnap.forEach(doc => {
-        setmatches(matches => [...matches, doc.data()]);
+        setMatches(matches => [...matches, doc.data()]);
       })
     });
   }
-
-  const addMeToMatch = async (id) => {
-    const match = getMatchByID(id);
-    if (!playerAlreadyExist(match.players)) {
-      match.players.push(user);
-      await setDoc(doc(db, "matches", id), { ...match });
-    }
-
-  }
-
-  const playerAlreadyExist = (playersInMatch) => playersInMatch.find(player => player.id === user.id);
-
-  const getMatchByID = (id) => matches.find(match => match.id === id);
 
   const onDismiss = useCallback(() => {
     setVisible(false)
@@ -103,6 +91,31 @@ export default function matches() {
       "players": []
     });
     setShouldShowForm(false);
+  }
+
+  const playerAlreadyExist = (playersInMatch) => playersInMatch.find(player => player.id === user.id);
+
+  const getMatchByID = (id) => matches.find(match => match.id === id);
+
+  const addMeToMatch = async (id) => {
+    const match = getMatchByID(id);
+    if (!playerAlreadyExist(match.players)) {
+      match.players.push(user);
+      await setDoc(doc(db, "matches", id), { ...match });
+    }
+
+  }
+
+  const removeFromMatch = async (playerID, match) => {
+    const newPlayersList = match.players.filter(player => {
+      if (player.id !== playerID) {
+        return player;
+      }
+    });
+    match.players = newPlayersList;
+    await setDoc(doc(db, "matches", match.id), {
+      ...match
+    });
   }
 
 
@@ -165,14 +178,15 @@ export default function matches() {
       </View> :
         <>
           <List.AccordionGroup>
-            {matches.map((item, index) => {
+            {matches.map((match, index) => {
               return (
-                <View key={item.id}>
-                  <List.Accordion left={props => <List.Icon {...props} icon="soccer" color='#1B5E20' />} style={styles.accordion} titleStyle={styles.acordeonTitle} title={`${item.lugar} ${item.fecha}`} id={item.id + index}>
+                <View key={match.id}>
+                  <List.Accordion left={props => <List.Icon {...props} icon="soccer" color='#1B5E20' />} style={styles.accordion} titleStyle={styles.acordeonTitle} title={`${match.lugar} ${match.fecha}`} id={match.id + index}>
                     <View style={styles.matchInformation}>
-                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Organizador:</Text><Text> {item.organizador}</Text></View>
-                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Fecha:</Text><Text> {item.fecha}</Text></View>
-                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Lugar:</Text><Text> {item.lugar}</Text></View>
+                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Informacion del partido:</Text></View>
+                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Organizador:</Text><Text> {match.organizador}</Text></View>
+                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Fecha:</Text><Text> {match.fecha}</Text></View>
+                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Lugar:</Text><Text> {match.lugar}</Text></View>
                     </View>
 
                     <Divider />
@@ -180,16 +194,17 @@ export default function matches() {
                       <View style={styles.playerListContainer}>
                         <Text style={styles.playerListTitle}>Jugadores:</Text>
                         <IconButton
+                          style={styles.addMeToMatchIconButton}
                           icon="account-plus"
                           iconColor='#1B5E20'
                           size={20}
                           mode="contained-tonal"
-                          onPress={() => addMeToMatch(item.id)}
+                          onPress={() => addMeToMatch(match.id)}
                         />
                       </View>
-                      {item.players.map((item, index) => {
+                      {match.players.map((player, index) => {
                         return (
-                          <Chip mode='outlined' icon="account" onPress={() => console.log('Pressed')}>{index + 1}-{item.apodo}</Chip>
+                          <Chip disabled={!(player.id === user.id)} mode='outlined' icon="account" onPress={() => removeFromMatch(player.id, match)}>{index + 1}-{player.apodo}</Chip>
                         )
                       })}
                     </> :
@@ -257,7 +272,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    marginBottom: 5
+    marginBottom: 5,
+    marginTop: 5
   },
   acordeonTitle: {
     fontWeight: 'bold',
@@ -279,19 +295,28 @@ const styles = StyleSheet.create({
   },
   listAccordionTextView: {
     flexDirection: 'row',
-    paddingLeft: 0
+    alignContent: 'flex-start'
   },
   listAccordionTextLeft: {
     fontWeight: 'bold',
-    color: '#388E3C'
+    color: '#388E3C',
   },
   playerListContainer: {
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   playerListTitle: {
-    alignSelf: 'center'
+    alignSelf: 'center',
+    paddingVertical: 20,
+    fontWeight: 'bold',
+    color: '#388E3C'
   },
   matchInformation: {
-    paddingVertical: 20
+    paddingLeft: 0,
+    paddingBottom: 20,
+    paddingTop: 20
+  },
+  addMeToMatchIconButton: {
+    margin: 'auto',
+    marginEnd: 10
   }
 });
