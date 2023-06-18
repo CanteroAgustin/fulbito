@@ -49,7 +49,9 @@ export default function matches() {
     onSnapshot(dbRef, docsSnap => {
       setMatches([]);
       docsSnap.forEach(doc => {
-        setMatches(matches => [...matches, doc.data()]);
+        if (doc.data().status === 'pendiente') {
+          setMatches(matches => [...matches, doc.data()]);
+        }
       })
     });
   }
@@ -118,6 +120,12 @@ export default function matches() {
     });
   }
 
+  const deleteMatch = async (match) => {
+    match.status = 'cancelado'
+    await setDoc(doc(db, "matches", match.id), {
+      ...match
+    });
+  }
 
   return (
     <View style={styles.container}>
@@ -226,6 +234,9 @@ export default function matches() {
                           )
                         })}
                       </View>}
+                    <Button style={{ marginTop: 10, backgroundColor: '#DC3545' }} icon="delete-outline" mode="contained" onPress={() => deleteMatch(match)}>
+                      Cancelar partido
+                    </Button>
                   </List.Accordion>
                 </View>
               );
