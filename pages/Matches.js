@@ -1,7 +1,7 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider } from 'react-native-paper';
+import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider, Dialog, Portal, PaperProvider } from 'react-native-paper';
 import { TimePickerModal, DatePickerModal, enGB, registerTranslation } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -12,7 +12,6 @@ import dayjs from 'dayjs';
 import matchesValidationSchema from '../schemas/matches-schema';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import { db } from '../config/firebase';
-import { margin } from '@mui/system';
 
 registerTranslation('en-GB', enGB)
 
@@ -29,6 +28,13 @@ export default function matches() {
   const [teamsReady, setTeamsReady] = useState(false);
   const [teamOne, setTeamOne] = useState([]);
   const [teamTwo, setTeamTwo] = useState([]);
+  const [cancelConfirmationVisible, setCancelConfirmationVisible] = useState(false);
+  const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
+
+  const showDialog = () => setCancelConfirmationVisible(true);
+  const hideDialog = () => setCancelConfirmationVisible(false);
+  const showFinishDialog = () => setFinishConfirmationVisible(true);
+  const hideFinishDialog = () => setFinishConfirmationVisible(false);
 
   useEffect(() => {
     getMatchs();
@@ -122,6 +128,13 @@ export default function matches() {
 
   const deleteMatch = async (match) => {
     match.status = 'cancelado'
+    await setDoc(doc(db, "matches", match.id), {
+      ...match
+    });
+  }
+
+  const finishMatch = async (match) => {
+    match.status = 'terminado'
     await setDoc(doc(db, "matches", match.id), {
       ...match
     });
@@ -234,9 +247,42 @@ export default function matches() {
                           )
                         })}
                       </View>}
-                    <Button style={{ marginTop: 10, backgroundColor: '#DC3545' }} icon="delete-outline" mode="contained" onPress={() => deleteMatch(match)}>
-                      Cancelar partido
-                    </Button>
+
+                    <PaperProvider>
+                      <Button style={{ marginTop: 10, backgroundColor: '#81C784' }} icon="check-outline" mode="contained" onPress={() => showFinishDialog()}>
+                        Finalizar partido
+                      </Button>
+                      <Portal>
+                        <Dialog visible={finishConfirmationVisible} onDismiss={hideFinishDialog}>
+                          <Dialog.Title>Finalizar partido</Dialog.Title>
+                          <Text>Ingresa el resultado</Text>
+                          <Dialog.Content>
+                            <TextInput label='equipo 1'></TextInput>
+                            <TextInput label='equipo 2'></TextInput>
+                          </Dialog.Content>
+                          <Dialog.Actions>
+                            <Button onPress={() => finishMatch(match)}>Finalizar</Button>
+                            <Button onPress={hideFinishDialog}>Cancelar</Button>
+                          </Dialog.Actions>
+                        </Dialog>
+                      </Portal>
+                      <Button style={{ marginTop: 10, backgroundColor: '#DC3545' }} icon="delete-outline" mode="contained" onPress={() => showDialog()}>
+                        Cancelar partido
+                      </Button>
+                      <Portal>
+                        <Dialog visible={cancelConfirmationVisible} onDismiss={hideDialog}>
+                          <Dialog.Title>Cancelar partido</Dialog.Title>
+                          <Dialog.Content>
+                            <Text variant="bodyMedium">Estas seguro que queres cancelar el partido?</Text>
+                          </Dialog.Content>
+                          <Dialog.Actions>
+                            <Button onPress={() => deleteMatch(match)}>Si</Button>
+                            <Button onPress={hideDialog}>No</Button>
+                          </Dialog.Actions>
+                        </Dialog>
+                      </Portal>
+                    </PaperProvider>
+
                   </List.Accordion>
                 </View>
               );
