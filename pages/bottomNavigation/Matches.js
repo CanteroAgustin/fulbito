@@ -9,9 +9,9 @@ import { setDoc, doc, collection, onSnapshot } from "firebase/firestore";
 import { Formik } from 'formik';
 import dayjs from 'dayjs';
 
-import matchesValidationSchema from '../schemas/matches-schema';
-import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
-import { db } from '../config/firebase';
+import matchesValidationSchema from '../../schemas/matches-schema';
+import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
+import { db } from '../../config/firebase';
 
 registerTranslation('en-GB', enGB)
 

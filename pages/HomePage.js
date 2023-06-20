@@ -3,35 +3,35 @@ import { StyleSheet, View, ImageBackground } from 'react-native';
 
 import { BottomNavigation } from 'react-native-paper';
 
-import Jugadores from './Jugadores';
-import Matches from './Matches';
-import Estadisticas from './Estadisticas';
-import Notificaciones from './Notificaciones';
+import Players from './bottomNavigation/Players';
+import Matches from './bottomNavigation/Matches';
+import Statistics from './bottomNavigation/Statistics';
+import Notifications from './bottomNavigation/Notifications';
 
 const image = require('../assets/background.jpeg');
 
 export default function HomeScreen() {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { key: 'jugadores', title: 'Jugadores', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
+    { key: 'players', title: 'Jugadores', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
     { key: 'matches', title: 'Partidos', focusedIcon: 'soccer-field' },
-    { key: 'estadisticas', title: 'Estadisticas', focusedIcon: 'star', unfocusedIcon: 'star-outline' },
-    { key: 'notificaciones', title: 'Notificaciones', focusedIcon: 'bell', unfocusedIcon: 'bell-outline' },
+    { key: 'statistics', title: 'Statistics', focusedIcon: 'star', unfocusedIcon: 'star-outline' },
+    { key: 'notifications', title: 'Notificaciones', focusedIcon: 'bell', unfocusedIcon: 'bell-outline' },
   ]);
 
-  const JugadoresRoute = () => <Jugadores />;
+  const PlayersRoute = () => <Players />;
 
   const MatchesRoute = () => <Matches />;
 
-  const EstadisticasRoute = () => <Estadisticas />;
+  const StatisticsRoute = () => <Statistics />;
 
-  const NotificacionesRoute = () => <Notificaciones />;
+  const NotificationsRoute = () => <Notifications />;
 
   const renderScene = BottomNavigation.SceneMap({
-    jugadores: JugadoresRoute,
+    players: PlayersRoute,
     matches: MatchesRoute,
-    estadisticas: EstadisticasRoute,
-    notificaciones: NotificacionesRoute,
+    statistics: StatisticsRoute,
+    notifications: NotificationsRoute,
   });
 
   return (

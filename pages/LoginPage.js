@@ -13,9 +13,9 @@ import { FormControl, List, ListItem, MenuItem, InputLabel, Select, Button, Text
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setDoc, doc, onSnapshot, getDoc } from "firebase/firestore";
 
-import loginValidationSchema from '../../schemas/login-schema';
-import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
-import { db } from '../../config/firebase';
+import loginValidationSchema from '../schemas/login-schema';
+import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
+import { db } from '../config/firebase';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -86,7 +86,7 @@ export default function LoginPage() {
       },
       posicion
     });
-    const unsub = onSnapshot(doc(db, "usuarios", tempUser.id), (doc) => {
+    onSnapshot(doc(db, "usuarios", tempUser.id), (doc) => {
       setUser({ ...doc.data() });
       AsyncStorage.setItem('@user', JSON.stringify(...doc.data()));
     });

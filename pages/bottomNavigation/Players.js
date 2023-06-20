@@ -4,9 +4,9 @@ import { Avatar, Surface, Badge } from 'react-native-paper';
 
 import { collection, onSnapshot } from "firebase/firestore";
 
-import { db } from '../config/firebase';
+import { db } from '../../config/firebase';
 
-export default function Jugadores(props) {
+export default function Players(props) {
   const [players, setPlayers] = useState([]);
 
   useEffect(() => {
