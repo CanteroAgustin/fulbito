@@ -1,6 +1,6 @@
 {
   "name": "fulbito",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -41,7 +41,8 @@
     "react-native-user-avatar": "^1.0.8",
     "react-native-vector-icons": "^9.2.0",
     "react-native-web": "^0.18.12",
-    "yup": "^1.2.0"
+    "yup": "^1.2.0",
+    "expo-constants": "~14.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
