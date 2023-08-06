@@ -1,7 +1,7 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, SafeAreaView } from 'react-native';
 
-import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider, Dialog, Portal, PaperProvider } from 'react-native-paper';
+import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider, Dialog, Portal } from 'react-native-paper';
 import { TimePickerModal, DatePickerModal, enGB, registerTranslation } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -153,7 +153,10 @@ export default function matches() {
           <List.AccordionGroup>
             {matches.map((match, index) => {
               return (
-                <MatchAccordion key={match.id} match={match} index={index}></MatchAccordion>
+                <SafeAreaView>
+                  <MatchAccordion key={match.id} match={match} index={index}></MatchAccordion>
+                </SafeAreaView>
+
               );
             })}
           </List.AccordionGroup>
