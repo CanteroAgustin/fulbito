@@ -1,11 +1,12 @@
 import React, { useContext } from "react";
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IconButton } from 'react-native-paper';
 
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import HomePage from "../pages/HomePage";
+import Version from "../components/version"
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ export default function HomeStack() {
         title: '',
         headerRightContainerStyle: styles.headerRight,
         headerStyle: {},
+        headerLeft: () => (<Version></Version>),
         headerRight: () => (
           <IconButton
             iconColor="#1B5E20"

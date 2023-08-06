@@ -2,7 +2,7 @@
   "expo": {
     "name": "fulbito",
     "slug": "fulbito",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.agustin721.fulbito"
@@ -29,9 +27,7 @@
       "favicon": "./assets/favicon.png"
     },
     "scheme": "beto",
-    "plugins": [
-      "expo-localization"
-    ],
+    "plugins": ["expo-localization"],
     "extra": {
       "eas": {
         "projectId": "499b4638-abd9-4f68-a0c6-ebe0041706f0"

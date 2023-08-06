@@ -1,7 +1,7 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, SafeAreaView } from 'react-native';
 
-import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider, Dialog, Portal, PaperProvider } from 'react-native-paper';
+import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider, Dialog, Portal } from 'react-native-paper';
 import { TimePickerModal, DatePickerModal, enGB, registerTranslation } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import matchesValidationSchema from '../../schemas/matches-schema';
 import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
 import { db } from '../../config/firebase';
+import MatchAccordion from '../../components/matchAccordion';
 
 registerTranslation('en-GB', enGB)
 
@@ -25,16 +26,6 @@ export default function matches() {
   const [minutes, setMinutes] = useState('00');
   const [open, setOpen] = useState(false);
   const [players, setPlayers] = useState([]);
-  const [teamsReady, setTeamsReady] = useState(false);
-  const [teamOne, setTeamOne] = useState([]);
-  const [teamTwo, setTeamTwo] = useState([]);
-  const [cancelConfirmationVisible, setCancelConfirmationVisible] = useState(false);
-  const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
-
-  const showDialog = () => setCancelConfirmationVisible(true);
-  const hideDialog = () => setCancelConfirmationVisible(false);
-  const showFinishDialog = () => setFinishConfirmationVisible(true);
-  const hideFinishDialog = () => setFinishConfirmationVisible(false);
 
   useEffect(() => {
     getMatchs();
@@ -101,45 +92,6 @@ export default function matches() {
     setShouldShowForm(false);
   }
 
-  const playerAlreadyExist = (playersInMatch) => playersInMatch.find(player => player.id === user.id);
-
-  const getMatchByID = (id) => matches.find(match => match.id === id);
-
-  const addMeToMatch = async (id) => {
-    const match = getMatchByID(id);
-    if (!playerAlreadyExist(match.players)) {
-      match.players.push(user);
-      await setDoc(doc(db, "matches", id), { ...match });
-    }
-
-  }
-
-  const removeFromMatch = async (playerID, match) => {
-    const newPlayersList = match.players.filter(player => {
-      if (player.id !== playerID) {
-        return player;
-      }
-    });
-    match.players = newPlayersList;
-    await setDoc(doc(db, "matches", match.id), {
-      ...match
-    });
-  }
-
-  const deleteMatch = async (match) => {
-    match.status = 'cancelado'
-    await setDoc(doc(db, "matches", match.id), {
-      ...match
-    });
-  }
-
-  const finishMatch = async (match) => {
-    match.status = 'terminado'
-    await setDoc(doc(db, "matches", match.id), {
-      ...match
-    });
-  }
-
   return (
     <View style={styles.container}>
       {shouldShowForm ? <View style={styles.formikContainer}>
@@ -201,90 +153,10 @@ export default function matches() {
           <List.AccordionGroup>
             {matches.map((match, index) => {
               return (
-                <View key={match.id}>
-                  <List.Accordion left={props => <List.Icon {...props} icon="soccer" color='#1B5E20' />} style={styles.accordion} titleStyle={styles.acordeonTitle} title={`${match.lugar} ${match.fecha}`} id={match.id + index}>
-                    <View style={styles.matchInformation}>
-                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Informacion del partido:</Text></View>
-                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Organizador:</Text><Text> {match.organizador}</Text></View>
-                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Fecha:</Text><Text> {match.fecha}</Text></View>
-                      <View style={styles.listAccordionTextView}><Text style={styles.listAccordionTextLeft}>Lugar:</Text><Text> {match.lugar}</Text></View>
-                    </View>
+                <SafeAreaView>
+                  <MatchAccordion key={match.id} match={match} index={index}></MatchAccordion>
+                </SafeAreaView>
 
-                    <Divider />
-                    {!teamsReady ? <>
-                      <View style={styles.playerListContainer}>
-                        <Text style={styles.playerListTitle}>Jugadores:</Text>
-                        <IconButton
-                          style={styles.addMeToMatchIconButton}
-                          icon="account-plus"
-                          iconColor='#1B5E20'
-                          size={20}
-                          mode="contained-tonal"
-                          onPress={() => addMeToMatch(match.id)}
-                        />
-                      </View>
-                      {match.players.map((player, index) => {
-                        return (
-                          <Chip disabled={!(player.id === user.id)} mode='outlined' icon="account" onPress={() => removeFromMatch(player.id, match)}>{index + 1}-{player.apodo}</Chip>
-                        )
-                      })}
-                    </> :
-                      <View>
-                        {teamOne.map((item) => {
-                          return (
-                            <>
-                              <Text>Equipo 1</Text>
-                              <Text>{item.apodo} - {item.posicion}</Text>
-                            </>
-                          )
-                        })}
-                        {teamTwo.map((item) => {
-                          return (
-                            <>
-                              <Text>Equipo 2</Text>
-                              <Text>{item.apodo} - {item.posicion}</Text>
-                            </>
-                          )
-                        })}
-                      </View>}
-
-                    <PaperProvider>
-                      <Button style={{ marginTop: 10, backgroundColor: '#81C784' }} icon="check-outline" mode="contained" onPress={() => showFinishDialog()}>
-                        Finalizar partido
-                      </Button>
-                      <Portal>
-                        <Dialog visible={finishConfirmationVisible} onDismiss={hideFinishDialog}>
-                          <Dialog.Title>Finalizar partido</Dialog.Title>
-                          <Text>Ingresa el resultado</Text>
-                          <Dialog.Content>
-                            <TextInput label='equipo 1'></TextInput>
-                            <TextInput label='equipo 2'></TextInput>
-                          </Dialog.Content>
-                          <Dialog.Actions>
-                            <Button onPress={() => finishMatch(match)}>Finalizar</Button>
-                            <Button onPress={hideFinishDialog}>Cancelar</Button>
-                          </Dialog.Actions>
-                        </Dialog>
-                      </Portal>
-                      <Button style={{ marginTop: 10, backgroundColor: '#DC3545' }} icon="delete-outline" mode="contained" onPress={() => showDialog()}>
-                        Cancelar partido
-                      </Button>
-                      <Portal>
-                        <Dialog visible={cancelConfirmationVisible} onDismiss={hideDialog}>
-                          <Dialog.Title>Cancelar partido</Dialog.Title>
-                          <Dialog.Content>
-                            <Text variant="bodyMedium">Estas seguro que queres cancelar el partido?</Text>
-                          </Dialog.Content>
-                          <Dialog.Actions>
-                            <Button onPress={() => deleteMatch(match)}>Si</Button>
-                            <Button onPress={hideDialog}>No</Button>
-                          </Dialog.Actions>
-                        </Dialog>
-                      </Portal>
-                    </PaperProvider>
-
-                  </List.Accordion>
-                </View>
               );
             })}
           </List.AccordionGroup>
@@ -318,23 +190,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  accordion: {
-    backgroundColor: '#ece6f3',
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    marginBottom: 5,
-    marginTop: 5
-  },
-  acordeonTitle: {
-    fontWeight: 'bold',
-  },
   card: {
     height: '100%',
   },
@@ -350,30 +205,4 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 5
   },
-  listAccordionTextView: {
-    flexDirection: 'row',
-    alignContent: 'flex-start'
-  },
-  listAccordionTextLeft: {
-    fontWeight: 'bold',
-    color: '#388E3C',
-  },
-  playerListContainer: {
-    flexDirection: 'row',
-  },
-  playerListTitle: {
-    alignSelf: 'center',
-    paddingVertical: 20,
-    fontWeight: 'bold',
-    color: '#388E3C'
-  },
-  matchInformation: {
-    paddingLeft: 0,
-    paddingBottom: 20,
-    paddingTop: 20
-  },
-  addMeToMatchIconButton: {
-    margin: 'auto',
-    marginEnd: 10
-  }
 });
