@@ -2,10 +2,11 @@ import React, { useState, useContext } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 
-import { Text, List, Button, Chip, IconButton, Divider, Dialog, Portal, ToggleButton, SegmentedButtons, PaperProvider, Modal, Provider } from 'react-native-paper';
+import { Text, List, Chip, IconButton, Divider, SegmentedButtons } from 'react-native-paper';
 import { db } from '../config/firebase';
 import { setDoc, doc } from "firebase/firestore";
-
+import FinishDialog from './finishDialog';
+import CancelDialog from './cancelDialog';
 
 export default function MatchAccordion({ match, index }) {
   const { user } = useContext(AuthenticatedUserContext);
@@ -13,16 +14,14 @@ export default function MatchAccordion({ match, index }) {
   const [teamOne, setTeamOne] = useState([]);
   const [teamTwo, setTeamTwo] = useState([]);
   const [cancelConfirmationVisible, setCancelConfirmationVisible] = useState(false);
-  const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
-  const [toggleBtnValue, setToggleBtnValue] = useState('checked');
-
+  const showFinishDialog = () => setFinishConfirmationVisible(true);
   const showDialog = () => setCancelConfirmationVisible(true);
   const hideDialog = () => setCancelConfirmationVisible(false);
-  const showFinishDialog = () => setFinishConfirmationVisible(true);
-  const hideFinishDialog = () => setFinishConfirmationVisible(false);
   const [value, setValue] = useState('');
 
   const playerAlreadyExist = (playersInMatch) => playersInMatch.find(player => player.id === user.id);
+  const hideFinishDialog = () => setFinishConfirmationVisible(false);
+  const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
 
   const addMeToMatch = async (match) => {
     if (!playerAlreadyExist(match.players)) {
@@ -40,21 +39,6 @@ export default function MatchAccordion({ match, index }) {
     match.players = newPlayersList;
     await setDoc(doc(db, "matches", match.id), {
       ...match
-    });
-  }
-
-  const deleteMatch = async (match) => {
-    match.status = 'cancelado'
-    await setDoc(doc(db, "matches", match.id), {
-      ...match
-    });
-  }
-
-  const finishMatch = async (match) => {
-    match.status = 'terminado'
-    await setDoc(doc(db, "matches", match.id), {
-      ...match,
-      win: toggleBtnValue
     });
   }
 
@@ -124,46 +108,10 @@ export default function MatchAccordion({ match, index }) {
         ]}
       />
       {finishConfirmationVisible &&
-        <Dialog visible={finishConfirmationVisible} onDismiss={hideFinishDialog}>
-          <Dialog.Title>Finalizar partido</Dialog.Title>
-          <Text style={styles.finishDialogText}>¿Quien gano?</Text>
-          <Dialog.Content>
-            <SegmentedButtons
-              style={styles.segmentButton}
-              value={toggleBtnValue}
-              onValueChange={setToggleBtnValue}
-              buttons={[
-                {
-                  value: '1',
-                  label: 'Equipo 1',
-                },
-                {
-                  value: '0',
-                  label: 'Empate',
-                },
-                {
-                  value: '2',
-                  label: 'Equipo 2',
-                },
-              ]}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => finishMatch(match)}>Finalizar</Button>
-            <Button onPress={hideFinishDialog}>Cancelar</Button>
-          </Dialog.Actions>
-        </Dialog>
+        <FinishDialog title="Finalizar partido" text="¿Quien gano?" hideDialog={hideFinishDialog} visible={finishConfirmationVisible} match={match} />
       }
-      {cancelConfirmationVisible && <Dialog visible={cancelConfirmationVisible} onDismiss={hideDialog}>
-        <Dialog.Title>Cancelar partido</Dialog.Title>
-        <Dialog.Content>
-          <Text variant="bodyMedium">Estas seguro que queres cancelar el partido?</Text>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button onPress={() => deleteMatch(match)}>Si</Button>
-          <Button onPress={hideDialog}>No</Button>
-        </Dialog.Actions>
-      </Dialog>}
+      {cancelConfirmationVisible &&
+        <CancelDialog title={"Cancelar partido"} text={"Estas seguro que queres cancelar el partido?"} visible={cancelConfirmationVisible} hideDialog={hideDialog} match={match} />}
     </List.Accordion>
 
   </View >)
@@ -214,11 +162,4 @@ const styles = StyleSheet.create({
     end: 10,
     top: 5
   },
-  finishDialogText: {
-    alignSelf: "center",
-    fontWeight: 'bold',
-    paddingBottom: 20,
-    fontSize: 20,
-    color: '#388E3C'
-  }
 });
