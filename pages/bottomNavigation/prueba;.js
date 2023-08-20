@@ -1,0 +1,2 @@
+let edad;
+edad = prompt();

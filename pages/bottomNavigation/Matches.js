@@ -1,9 +1,7 @@
-import React, { useState, useContext, useCallback, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, View, SafeAreaView } from 'react-native';
 
-import { Text, TextInput, FAB, List, Button, Chip, IconButton, Divider, Dialog, Portal } from 'react-native-paper';
-import { TimePickerModal, DatePickerModal, enGB, registerTranslation } from 'react-native-paper-dates';
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Text, TextInput, FAB, List, Button } from 'react-native-paper';
 
 import { setDoc, doc, collection, onSnapshot } from "firebase/firestore";
 import { Formik } from 'formik';
@@ -13,18 +11,14 @@ import matchesValidationSchema from '../../schemas/matches-schema';
 import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
 import { db } from '../../config/firebase';
 import MatchAccordion from '../../components/matchAccordion';
-
-registerTranslation('en-GB', enGB)
+import DatePicker from '../../components/datePicker';
 
 export default function matches() {
   const { user } = useContext(AuthenticatedUserContext);
   const [matches, setMatches] = useState([]);
   const [shouldShowForm, setShouldShowForm] = useState(false);
-  const [visible, setVisible] = useState(false)
   const [date, setDate] = useState(undefined);
-  const [hour, setHour] = useState('19');
-  const [minutes, setMinutes] = useState('00');
-  const [open, setOpen] = useState(false);
+  const [hour, setHour] = useState('19:00');
   const [players, setPlayers] = useState([]);
 
   useEffect(() => {
@@ -53,33 +47,8 @@ export default function matches() {
     });
   }
 
-  const onDismiss = useCallback(() => {
-    setVisible(false)
-  }, [setVisible])
-
-  const onConfirm = useCallback(
-    ({ hours, minutes }) => {
-      setVisible(false);
-      setHour(hours);
-      setMinutes(minutes);
-    },
-    [setVisible]
-  );
-
-  const onDismissSingle = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
-
-  const onConfirmSingle = useCallback(
-    (params) => {
-      setOpen(false);
-      setDate(params.date);
-    },
-    [setOpen, setDate]
-  );
-
   const createMatch = async values => {
-    const fecha = dayjs(date).format('DD-MM-YYYY') + " " + hour + ":" + minutes + "hs"
+    const fecha = dayjs(date).format('DD-MM-YYYY') + " " + hour + "hs"
     const id = `${user.id}-${values.lugar}-${fecha}`
     await setDoc(doc(db, "matches", id), {
       "id": id,
@@ -90,6 +59,14 @@ export default function matches() {
       "players": []
     });
     setShouldShowForm(false);
+  }
+
+  function handleDateEvent(date) {
+    setDate(date);
+  }
+
+  function handleHourEvent(hour) {
+    setHour(hour);
   }
 
   return (
@@ -114,35 +91,7 @@ export default function matches() {
                 <Text style={{ textAlign: 'center', fontSize: 15, color: 'red', paddingTop: 10 }}>{errors.lugar}</Text>
               }
               <View style={styles.iconDateContainer}>
-                <SafeAreaProvider>
-                  <View style={styles.dateButtons}>
-                    <Button textColor='#1B5E20' icon="calendar-blank" mode="outlined" onPress={() => setOpen(true)}>
-                      Fecha
-                    </Button>
-                    <DatePickerModal
-                      locale="en"
-                      mode="single"
-                      visible={open}
-                      onDismiss={onDismissSingle}
-                      date={date}
-                      onConfirm={onConfirmSingle}
-                    />
-                  </View>
-                </SafeAreaProvider>
-                <SafeAreaProvider>
-                  <View style={styles.dateButtons}>
-                    <Button textColor='#1B5E20' icon="clock-outline" mode="outlined" onPress={() => setVisible(true)}>
-                      Hora
-                    </Button>
-                    <TimePickerModal
-                      visible={visible}
-                      onDismiss={onDismiss}
-                      onConfirm={onConfirm}
-                      hours={12}
-                      minutes={14}
-                    />
-                  </View>
-                </SafeAreaProvider>
+                <DatePicker dateEvent={handleDateEvent} hourEvent={handleHourEvent}></DatePicker>
               </View>
               <Button style={styles.saveBtn} buttonColor='#1B5E20' mode="contained" onPress={handleSubmit}>Guardar</Button>
             </View>
@@ -153,7 +102,7 @@ export default function matches() {
           <List.AccordionGroup>
             {matches.map((match, index) => {
               return (
-                <SafeAreaView>
+                <SafeAreaView key={match.id}>
                   <MatchAccordion key={match.id} match={match} index={index}></MatchAccordion>
                 </SafeAreaView>
 
@@ -193,16 +142,9 @@ const styles = StyleSheet.create({
   card: {
     height: '100%',
   },
-  iconDateContainer: {
-    flexDirection: 'row'
-  },
   saveBtn: {
     width: '100%',
     position: 'absolute',
     bottom: 0
-  },
-  dateButtons: {
-    paddingTop: 20,
-    paddingHorizontal: 5
   },
 });
