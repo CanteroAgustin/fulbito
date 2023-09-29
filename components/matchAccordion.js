@@ -56,6 +56,14 @@ export default function MatchAccordion({ match, index }) {
         <View style={styles.playerListContainer}>
           <Text style={styles.playerListTitle}>Jugadores:</Text>
           <IconButton
+            style={styles.addPlayersToMatchIconButton}
+            icon="account-multiple-plus"
+            iconColor='#1B5E20'
+            size={20}
+            mode="contained-tonal"
+            onPress={() => addMeToMatch(match)}
+          />
+          <IconButton
             style={styles.addMeToMatchIconButton}
             icon="account-plus"
             iconColor='#1B5E20'
@@ -159,7 +167,12 @@ const styles = StyleSheet.create({
   },
   addMeToMatchIconButton: {
     position: 'absolute',
-    end: 10,
+    end: 0,
+    top: 5
+  },
+  addPlayersToMatchIconButton: {
+    position: 'absolute',
+    end: 50,
     top: 5
   },
 });

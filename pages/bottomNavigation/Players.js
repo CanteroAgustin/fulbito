@@ -1,45 +1,29 @@
-import { useEffect, useState } from 'react'
-import { StyleSheet, View, Text } from 'react-native';
-import { Avatar, Surface, Badge } from 'react-native-paper';
-
-import { collection, onSnapshot } from "firebase/firestore";
-
-import { db } from '../../config/firebase';
+import { useContext } from 'react'
+import { StyleSheet, View } from 'react-native';
+import { Text, Avatar, Surface, Badge } from 'react-native-paper';
+import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
 
 export default function Players(props) {
-  const [players, setPlayers] = useState([]);
-
-  useEffect(() => {
-    getPlayers();
-  }, []);
-
-  const getPlayers = async () => {
-    const dbRef = collection(db, "usuarios");
-    onSnapshot(dbRef, docsSnap => {
-      docsSnap.forEach(doc => {
-        setPlayers(players => [...players, doc.data()]);
-      })
-    });
-  }
+  const { players } = useContext(AuthenticatedUserContext);
 
   return (
     <View style={styles.container}>
       {players.map(item => {
         return (
-          <Surface style={styles.surface} elevation={4} key={item.id}>
+          <Surface style={styles.surface} elevation={4} key={item?.id}>
             <Avatar.Image style={styles.avatar} {...props} size={48} source={{
-              uri: item.picture,
+              uri: item?.picture,
             }} />
             <View style={styles.cardContainer}>
-              <Text style={styles.textApodo}>{item.apodo} - {item.posicion}</Text>
+              <Text style={styles.textApodo}>{item?.apodo} - {item?.posicion}</Text>
               <View style={styles.badgesContainer}>
-                <Badge size={25} style={styles.badge}>J: {item.estadisticas.jugados}</Badge>
-                <Badge size={25} style={styles.badge}>G: {item.estadisticas.ganados}</Badge>
-                <Badge size={25} style={styles.badge}>E: {item.estadisticas.empatados}</Badge>
-                <Badge size={25} style={styles.badge}>P: {item.estadisticas.perdidos}</Badge>
+                <Badge size={25} style={styles.badge}>J: {item?.estadisticas?.jugados}</Badge>
+                <Badge size={25} style={styles.badge}>G: {item?.estadisticas?.ganados}</Badge>
+                <Badge size={25} style={styles.badge}>E: {item?.estadisticas?.empatados}</Badge>
+                <Badge size={25} style={styles.badge}>P: {item?.estadisticas?.perdidos}</Badge>
               </View>
             </View>
-            <Badge size={25} style={styles.badgePuntos}>Puntos: {item.estadisticas.puntos}</Badge>
+            <Badge size={25} style={styles.badgePuntos}>Puntos: {item?.estadisticas?.puntos}</Badge>
           </Surface>
         );
       })}

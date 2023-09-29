@@ -32,6 +32,7 @@ export default function LoginPage() {
 
   async function handleSignInWithGoogle() {
     if (response?.type === "success") {
+      console.log("response success from google");
       await getUserInfo(response.authentication.accessToken);
     }
   }
