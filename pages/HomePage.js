@@ -15,7 +15,7 @@ export default function HomeScreen() {
   const [routes] = useState([
     { key: 'players', title: 'Jugadores', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
     { key: 'matches', title: 'Partidos', focusedIcon: 'soccer-field' },
-    { key: 'statistics', title: 'Statistics', focusedIcon: 'star', unfocusedIcon: 'star-outline' },
+    { key: 'statistics', title: 'Estadisticas', focusedIcon: 'star', unfocusedIcon: 'star-outline' },
     { key: 'notifications', title: 'Notificaciones', focusedIcon: 'bell', unfocusedIcon: 'bell-outline' },
   ]);
 

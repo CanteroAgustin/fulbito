@@ -14,26 +14,15 @@ import MatchAccordion from '../../components/matchAccordion';
 import DatePicker from '../../components/datePicker';
 
 export default function matches() {
-  const { user } = useContext(AuthenticatedUserContext);
+  const { user, _, players, setPlayers } = useContext(AuthenticatedUserContext);
   const [matches, setMatches] = useState([]);
   const [shouldShowForm, setShouldShowForm] = useState(false);
   const [date, setDate] = useState(undefined);
   const [hour, setHour] = useState('19:00');
-  const [players, setPlayers] = useState([]);
 
   useEffect(() => {
     getMatchs();
-    getPlayers();
   }, [])
-
-  const getPlayers = async () => {
-    const dbRef = collection(db, "usuarios");
-    onSnapshot(dbRef, docsSnap => {
-      docsSnap.forEach(doc => {
-        setPlayers(players => [...players, doc.data()]);
-      })
-    });
-  }
 
   const getMatchs = async () => {
     const dbRef = collection(db, "matches");

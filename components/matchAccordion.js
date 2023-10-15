@@ -7,6 +7,7 @@ import { db } from '../config/firebase';
 import { setDoc, doc } from "firebase/firestore";
 import FinishDialog from './finishDialog';
 import CancelDialog from './cancelDialog';
+import PlayersList from './playersList';
 
 export default function MatchAccordion({ match, index }) {
   const { user } = useContext(AuthenticatedUserContext);
@@ -18,6 +19,7 @@ export default function MatchAccordion({ match, index }) {
   const showDialog = () => setCancelConfirmationVisible(true);
   const hideDialog = () => setCancelConfirmationVisible(false);
   const [value, setValue] = useState('');
+  const [shouldShowPlayersList, setShouldShowPlayersList] = useState(false);
 
   const playerAlreadyExist = (playersInMatch) => playersInMatch.find(player => player.id === user.id);
   const hideFinishDialog = () => setFinishConfirmationVisible(false);
@@ -30,6 +32,10 @@ export default function MatchAccordion({ match, index }) {
     }
   }
 
+  const addToMatch = async () => {
+    setShouldShowPlayersList(!shouldShowPlayersList);
+  }
+
   const removeFromMatch = async (playerID, match) => {
     const newPlayersList = match.players.filter(player => {
       if (player.id !== playerID) {
@@ -40,6 +46,12 @@ export default function MatchAccordion({ match, index }) {
     await setDoc(doc(db, "matches", match.id), {
       ...match
     });
+  }
+
+  const addPlayerToMatch = async player => {
+    setShouldShowPlayersList(false);
+    match.players.push(player);
+    await setDoc(doc(db, "matches", match.id), { ...match });
   }
 
   return (<View key={match.id}>
@@ -56,6 +68,15 @@ export default function MatchAccordion({ match, index }) {
         <View style={styles.playerListContainer}>
           <Text style={styles.playerListTitle}>Jugadores:</Text>
           <IconButton
+            style={styles.addPlayersToMatchIconButton}
+            icon="account-multiple-plus"
+            iconColor='#1B5E20'
+            size={20}
+            mode="contained-tonal"
+            onPress={() => addToMatch(match)}
+          />
+          {shouldShowPlayersList ? <PlayersList addPlayerToMatch={addPlayerToMatch} match={match} /> : null}
+          <IconButton
             style={styles.addMeToMatchIconButton}
             icon="account-plus"
             iconColor='#1B5E20'
@@ -66,7 +87,7 @@ export default function MatchAccordion({ match, index }) {
         </View>
         {match.players.map((player, index) => {
           return (
-            <Chip key={player.id} disabled={!(player.id === user.id)} mode='outlined' icon="account" onPress={() => removeFromMatch(player.id, match)}>{index + 1}-{player.apodo}</Chip>
+            <Chip key={player.id} disabled={(!(player.id === user.id) && user.rol != 'admin')} mode='outlined' icon="account" onPress={() => removeFromMatch(player.id, match)}>{index + 1}-{player.apodo}</Chip>
           )
         })}
       </> :
@@ -159,7 +180,15 @@ const styles = StyleSheet.create({
   },
   addMeToMatchIconButton: {
     position: 'absolute',
-    end: 10,
+    end: 0,
     top: 5
   },
+  addPlayersToMatchIconButton: {
+    position: 'absolute',
+    end: 50,
+    top: 5
+  },
+  segmentButton: {
+    marginTop: 20
+  }
 });
