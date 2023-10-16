@@ -8,6 +8,7 @@ import { setDoc, doc } from "firebase/firestore";
 import FinishDialog from './finishDialog';
 import CancelDialog from './cancelDialog';
 import PlayersList from './playersList';
+import FormGuest from '../components/formGuest';
 
 export default function MatchAccordion({ match, index }) {
   const { user } = useContext(AuthenticatedUserContext);
@@ -20,7 +21,7 @@ export default function MatchAccordion({ match, index }) {
   const hideDialog = () => setCancelConfirmationVisible(false);
   const [value, setValue] = useState('');
   const [shouldShowPlayersList, setShouldShowPlayersList] = useState(false);
-
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
   const playerAlreadyExist = (playersInMatch) => playersInMatch.find(player => player.id === user.id);
   const hideFinishDialog = () => setFinishConfirmationVisible(false);
   const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
@@ -34,6 +35,10 @@ export default function MatchAccordion({ match, index }) {
 
   const addToMatch = async () => {
     setShouldShowPlayersList(!shouldShowPlayersList);
+  }
+
+  const addGuest = async () => {
+    setGuestModalVisible(!guestModalVisible);
   }
 
   const removeFromMatch = async (playerID, match) => {
@@ -54,6 +59,11 @@ export default function MatchAccordion({ match, index }) {
     await setDoc(doc(db, "matches", match.id), { ...match });
   }
 
+  const closeGuestModalEvent = async match => {
+    await setDoc(doc(db, "matches", match.id), { ...match });
+    setGuestModalVisible(false);
+  }
+
   return (<View key={match.id}>
     <List.Accordion style={styles.accordion} titleStyle={styles.acordeonTitle} title={`${match.lugar} ${match.fecha}`} id={match.id + index}>
       <View style={styles.matchInformation}>
@@ -67,14 +77,22 @@ export default function MatchAccordion({ match, index }) {
       {!teamsReady ? <>
         <View style={styles.playerListContainer}>
           <Text style={styles.playerListTitle}>Jugadores:</Text>
-          <IconButton
+          {user.rol == "admin" && <IconButton
+            style={styles.addGuestIconButton}
+            icon="account-question"
+            iconColor='#1B5E20'
+            size={20}
+            mode="contained-tonal"
+            onPress={() => addGuest(match)}
+          />}
+          {user.rol == "admin" && <IconButton
             style={styles.addPlayersToMatchIconButton}
             icon="account-multiple-plus"
             iconColor='#1B5E20'
             size={20}
             mode="contained-tonal"
             onPress={() => addToMatch(match)}
-          />
+          />}
           {shouldShowPlayersList ? <PlayersList addPlayerToMatch={addPlayerToMatch} match={match} /> : null}
           <IconButton
             style={styles.addMeToMatchIconButton}
@@ -85,9 +103,12 @@ export default function MatchAccordion({ match, index }) {
             onPress={() => addMeToMatch(match)}
           />
         </View>
+        {guestModalVisible &&
+          <FormGuest match={match} closeGuestModalEvent={closeGuestModalEvent} />}
         {match.players.map((player, index) => {
           return (
-            <Chip key={player.id} disabled={(!(player.id === user.id) && user.rol != 'admin')} mode='outlined' icon="account" onPress={() => removeFromMatch(player.id, match)}>{index + 1}-{player.apodo}</Chip>
+            <Chip style={{ marginBottom: 5 }} key={player.id} disabled={(!(player.id === user.id) && user.rol != 'admin')} mode='outlined' icon="account"
+              onPress={() => removeFromMatch(player.id, match)}>{index + 1}-{player.apodo} ({player.posicion})</Chip>
           )
         })}
       </> :
@@ -109,7 +130,7 @@ export default function MatchAccordion({ match, index }) {
             )
           })}
         </View>}
-      <SegmentedButtons
+      {user.rol === 'admin' && < SegmentedButtons
         style={styles.segmentButton}
         value={value}
         onValueChange={setValue}
@@ -127,12 +148,12 @@ export default function MatchAccordion({ match, index }) {
             label: 'Finalizar partido',
           },
         ]}
-      />
+      />}
       {finishConfirmationVisible &&
         <FinishDialog title="Finalizar partido" text="¿Quien gano?" hideDialog={hideFinishDialog} visible={finishConfirmationVisible} match={match} />
       }
       {cancelConfirmationVisible &&
-        <CancelDialog title={"Cancelar partido"} text={"Estas seguro que queres cancelar el partido?"} visible={cancelConfirmationVisible} hideDialog={hideDialog} match={match} />}
+        <CancelDialog title="Cancelar partido" text={"Estas seguro que queres cancelar el partido?"} visible={cancelConfirmationVisible} hideDialog={hideDialog} match={match} />}
     </List.Accordion>
 
   </View >)
@@ -186,6 +207,11 @@ const styles = StyleSheet.create({
   addPlayersToMatchIconButton: {
     position: 'absolute',
     end: 50,
+    top: 5
+  },
+  addGuestIconButton: {
+    position: 'absolute',
+    end: 100,
     top: 5
   },
   segmentButton: {
