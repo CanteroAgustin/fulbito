@@ -6,8 +6,8 @@ export default function Teams({ match }) {
 
   return (
     <View>
-      <Team name="Equipo 1" team={match.team1}></Team>
-      <Team name="Equipo 2" team={match.team2}></Team>
+      {match.team1 && <Team name="Equipo 1" team={match.team1}></Team>}
+      {match.team2 && <Team name="Equipo 2" team={match.team2}></Team>}
     </View>
 
   );

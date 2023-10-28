@@ -5,7 +5,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import loginValidationSchema from '../schemas/login-schema';
 import { Formik } from 'formik';
 import uuid from 'react-native-uuid';
-import { AddToPlayerList } from '../services/matchDB';
+import { AddToPlayerList } from '../services/matchService';
 
 export default function FormGuest({ match, closeGuestModalEvent }) {
   const [posicion, setPosicion] = useState('Arquero');

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, Button, Dialog } from 'react-native-paper';
-import { RemoveFromPlayerList } from '../services/matchDB';
+import { RemoveFromPlayerList, addPlayerToTeamAndRemoveFromList } from '../services/matchService';
+import { TEAMS } from '../shared/utils/constants';
 
 const ConfirmDialog = ({
   title,
@@ -24,8 +25,8 @@ const ConfirmDialog = ({
       </Dialog.Content>
       <Dialog.Actions>
         <Button onPress={() => deletePlayer(match, player)}>Eliminar</Button>
-        <Button onPress={hideDialog}>Equipo 1</Button>
-        <Button onPress={hideDialog}>Equipo 2</Button>
+        <Button onPress={() => addPlayerToTeamAndRemoveFromList(match, player, TEAMS.TEAM_ONE)}>Equipo 1</Button>
+        <Button onPress={() => addPlayerToTeamAndRemoveFromList(match, player, TEAMS.TEAM_TWO)}>Equipo 2</Button>
       </Dialog.Actions>
     </Dialog>
   );

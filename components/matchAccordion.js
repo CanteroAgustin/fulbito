@@ -10,7 +10,7 @@ import FormGuest from '../components/formGuest';
 import Teams from './teams';
 import MatchInformation from './matchInformation';
 import PlayerList from './playerList';
-import { AddToPlayerList } from '../services/matchDB';
+import { AddToPlayerList } from '../services/matchService';
 import { ROL } from '../shared/utils/constants';
 import ConfirmDialog from './confirmDialog';
 
@@ -83,9 +83,7 @@ export default function MatchAccordion({ match, index }) {
         <FormGuest match={match} closeGuestModalEvent={closeGuestModalEvent} />}
       <PlayerList match={match} setSelectedPlayer={setSelectedPlayer} setShowConfirmDialog={setShowConfirmDialog}></PlayerList>
       <Divider />
-      {(match.team1.length > 0 || match.team2.length > 0) &&
-        <Teams match={match}></Teams>
-      }
+      <Teams match={match}></Teams>
 
       {user.rol === ROL.ADMIN && < SegmentedButtons
         style={styles.segmentButton}
