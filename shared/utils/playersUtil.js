@@ -14,3 +14,5 @@ export const mapPlayersToKeyValueList = (players, match) => {
 
   return keyValueList;
 }
+
+export const playerAlreadyExist = (playersInMatch, playerID) => playersInMatch.find(player => player.id === playerID);

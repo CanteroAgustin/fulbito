@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { StyleSheet, View, SafeAreaView } from 'react-native';
+import { StyleSheet, View, SafeAreaView, ScrollView } from 'react-native';
 
 import { Text, TextInput, FAB, List, Button } from 'react-native-paper';
 
@@ -88,21 +88,23 @@ export default function matches() {
         </Formik>
       </View> :
         <>
-          <List.AccordionGroup>
-            {matches.map((match, index) => {
-              return (
-                <SafeAreaView key={match.id}>
-                  <MatchAccordion key={match.id} match={match} index={index}></MatchAccordion>
-                </SafeAreaView>
+          <ScrollView>
+            <List.AccordionGroup>
+              {matches.map((match, index) => {
+                return (
+                  <SafeAreaView key={match.id}>
+                    <MatchAccordion key={match.id} match={match} index={index}></MatchAccordion>
+                  </SafeAreaView>
 
-              );
-            })}
-          </List.AccordionGroup>
-          <FAB
+                );
+              })}
+            </List.AccordionGroup>
+          </ScrollView>
+          {user.rol === 'admin' && <FAB
             icon="plus"
             style={styles.fab}
             onPress={() => { setShouldShowForm(true) }}
-          />
+          />}
         </>
       }
     </View>
