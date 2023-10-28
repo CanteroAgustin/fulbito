@@ -17,6 +17,11 @@ const ConfirmDialog = ({
     hideDialog();
   }
 
+  const handleAddPlayer = (match, player, team) => {
+    addPlayerToTeamAndRemoveFromList(match, player, team);
+    hideDialog();
+  }
+
   return (
     <Dialog visible={visible} onDismiss={hideDialog}>
       <Dialog.Title>{title}</Dialog.Title>
@@ -25,8 +30,8 @@ const ConfirmDialog = ({
       </Dialog.Content>
       <Dialog.Actions>
         <Button onPress={() => deletePlayer(match, player)}>Eliminar</Button>
-        <Button onPress={() => addPlayerToTeamAndRemoveFromList(match, player, TEAMS.TEAM_ONE)}>Equipo 1</Button>
-        <Button onPress={() => addPlayerToTeamAndRemoveFromList(match, player, TEAMS.TEAM_TWO)}>Equipo 2</Button>
+        <Button onPress={() => handleAddPlayer(match, player, TEAMS.TEAM_ONE)}>Equipo 1</Button>
+        <Button onPress={() => handleAddPlayer(match, player, TEAMS.TEAM_TWO)}>Equipo 2</Button>
       </Dialog.Actions>
     </Dialog>
   );
