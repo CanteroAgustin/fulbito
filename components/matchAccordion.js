@@ -3,8 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 
 import { Text, List, IconButton, Divider, SegmentedButtons } from 'react-native-paper';
-import { db } from '../config/firebase';
-import { setDoc, doc } from "firebase/firestore";
 import FinishDialog from './finishDialog';
 import CancelDialog from './cancelDialog';
 import PlayersListSelect from './playersListSelect';
@@ -13,42 +11,38 @@ import Teams from './teams';
 import MatchInformation from './matchInformation';
 import PlayerList from './playerList';
 import { AddToPlayerList } from '../services/matchDB';
+import { ROL } from '../shared/utils/constants';
+import ConfirmDialog from './confirmDialog';
 
 export default function MatchAccordion({ match, index }) {
   const { user } = useContext(AuthenticatedUserContext);
-  const [teamsReady, setTeamsReady] = useState(false);
-  const [teamOne, setTeamOne] = useState([]);
-  const [teamTwo, setTeamTwo] = useState([]);
   const [cancelConfirmationVisible, setCancelConfirmationVisible] = useState(false);
-  const showFinishDialog = () => setFinishConfirmationVisible(true);
-  const showDialog = () => setCancelConfirmationVisible(true);
-  const hideDialog = () => setCancelConfirmationVisible(false);
+  const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [value, setValue] = useState('');
   const [shouldShowPlayersList, setShouldShowPlayersList] = useState(false);
   const [guestModalVisible, setGuestModalVisible] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
   const hideFinishDialog = () => setFinishConfirmationVisible(false);
-  const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
+  const showFinishDialog = () => setFinishConfirmationVisible(true);
+  const showDialog = () => setCancelConfirmationVisible(true);
+  const hideDialog = () => setCancelConfirmationVisible(false);
 
-  const addMeToMatch = async (match) => {
-    AddToPlayerList(match, user);
-  }
+  const hideConfirmDialog = () => {
+    setSelectedPlayer(null);
+    setShowConfirmDialog(false);
+  };
 
   const addToMatch = async () => {
     setShouldShowPlayersList(!shouldShowPlayersList);
   }
 
-  const addGuest = async () => {
-    setGuestModalVisible(!guestModalVisible);
-  }
-
   const addPlayerToMatch = async player => {
     setShouldShowPlayersList(false);
-    match.players.push(player);
-    await setDoc(doc(db, "matches", match.id), { ...match });
+    AddToPlayerList(match, player);
   }
 
-  const closeGuestModalEvent = async match => {
-    await setDoc(doc(db, "matches", match.id), { ...match });
+  const closeGuestModalEvent = () => {
     setGuestModalVisible(false);
   }
 
@@ -56,16 +50,15 @@ export default function MatchAccordion({ match, index }) {
     <List.Accordion style={styles.accordion} titleStyle={styles.acordeonTitle} title={`${match.lugar} ${match.fecha}`} id={match.id + index}>
       <MatchInformation match={match} />
       <Divider />
-
       <View style={styles.playerListContainer}>
         <Text style={styles.playerListTitle}>Jugadores:</Text>
-        {user.rol == "admin" && <IconButton
+        {user.rol == ROL.ADMIN && <IconButton
           style={styles.addGuestIconButton}
           icon="account-question"
           iconColor='#1B5E20'
           size={20}
           mode="contained-tonal"
-          onPress={() => addGuest(match)}
+          onPress={() => setGuestModalVisible(!guestModalVisible)}
         />}
         {user.rol == "admin" && <IconButton
           style={styles.addPlayersToMatchIconButton}
@@ -81,20 +74,20 @@ export default function MatchAccordion({ match, index }) {
           iconColor='#1B5E20'
           size={20}
           mode="contained-tonal"
-          onPress={() => addMeToMatch(match)}
+          onPress={() => AddToPlayerList(match, user)}
         />
         {shouldShowPlayersList ? <PlayersListSelect addPlayerToMatch={addPlayerToMatch} match={match} /> : null}
       </View>
 
       {guestModalVisible &&
         <FormGuest match={match} closeGuestModalEvent={closeGuestModalEvent} />}
-      <PlayerList match={match}></PlayerList>
+      <PlayerList match={match} setSelectedPlayer={setSelectedPlayer} setShowConfirmDialog={setShowConfirmDialog}></PlayerList>
       <Divider />
       {(match.team1.length > 0 || match.team2.length > 0) &&
         <Teams match={match}></Teams>
       }
 
-      {user.rol === 'admin' && < SegmentedButtons
+      {user.rol === ROL.ADMIN && < SegmentedButtons
         style={styles.segmentButton}
         value={value}
         onValueChange={setValue}
@@ -118,6 +111,9 @@ export default function MatchAccordion({ match, index }) {
       }
       {cancelConfirmationVisible &&
         <CancelDialog title="Cancelar partido" text={"Estas seguro que queres cancelar el partido?"} visible={cancelConfirmationVisible} hideDialog={hideDialog} match={match} />}
+      {selectedPlayer &&
+        <ConfirmDialog title="Confirmar accion" hideDialog={hideConfirmDialog} visible={showConfirmDialog} match={match} player={selectedPlayer} />
+      }
     </List.Accordion>
 
   </View >)
