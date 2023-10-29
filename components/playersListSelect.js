@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import { StyleSheet, View } from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list'
@@ -10,8 +10,8 @@ export default function PlayersListSelect({ addPlayerToMatch, match }) {
 
   const keyValueList = mapPlayersToKeyValueList(players, match);
 
-  const playerAlreadyExist = val => {
-    return players.find(player => player.apodo === val)
+  const playerAlreadyExist = apodo => {
+    return players.find(player => player.apodo === apodo)
   }
 
   return (<View style={styles.container}>

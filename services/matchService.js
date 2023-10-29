@@ -39,6 +39,7 @@ export function addPlayerToTeamAndRemoveFromList(match, player, team) {
   };
 
   if (shouldUpdateMatch) {
+    match.players = match.players.filter(p => p.id !== player.id);
     UpdateMatch(match);
   };
 }
