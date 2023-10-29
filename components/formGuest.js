@@ -5,6 +5,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import loginValidationSchema from '../schemas/login-schema';
 import { Formik } from 'formik';
 import uuid from 'react-native-uuid';
+import { AddToPlayerList } from '../services/matchService';
 
 export default function FormGuest({ match, closeGuestModalEvent }) {
   const [posicion, setPosicion] = useState('Arquero');
@@ -23,8 +24,8 @@ export default function FormGuest({ match, closeGuestModalEvent }) {
     guest.apodo = data.apodo;
     guest.posicion = pos;
     guest.rol = 'invitado';
-    match.players.push(guest);
-    closeGuestModalEvent(match)
+    AddToPlayerList(match, guest);
+    closeGuestModalEvent();
   };
 
   return (
