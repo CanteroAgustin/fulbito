@@ -20,6 +20,17 @@ export function AddToPlayerList(match, player) {
   }
 }
 
+export function removeFromTeamAndAddToList(team, player, match, teamName) {
+  team = team.filter(p => p.id != player.id);
+  if (teamName == "Equipo 1") {
+    match.team1 = team;
+  } else {
+    match.team2 = team;
+  }
+  match.players.push(player);
+  UpdateMatch(match);
+}
+
 export function addPlayerToTeamAndRemoveFromList(match, player, team) {
   let teamToUpdate = match.team1;
   let shouldUpdateMatch = false;
