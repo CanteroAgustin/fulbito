@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { Text, Button, SegmentedButtons, Dialog } from 'react-native-paper';
-import { db } from '../config/firebase';
-import { setDoc, doc } from "firebase/firestore";
+import { finishMatch } from '../services/matchService';
+import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 
 const FinishDialog = ({
   title,
@@ -11,15 +11,8 @@ const FinishDialog = ({
   visible,
   hideDialog
 }) => {
-
+  const { players } = useContext(AuthenticatedUserContext);
   const [toggleBtnValue, setToggleBtnValue] = useState('checked');
-  const finishMatch = async (match) => {
-    match.status = 'terminado'
-    await setDoc(doc(db, "matches", match.id), {
-      ...match,
-      win: toggleBtnValue
-    });
-  }
 
   return (
     <Dialog visible={visible} onDismiss={hideDialog}>
@@ -46,7 +39,7 @@ const FinishDialog = ({
         />
       </Dialog.Content>
       <Dialog.Actions>
-        <Button onPress={() => finishMatch(match)}>Finalizar</Button>
+        <Button onPress={() => finishMatch(match, toggleBtnValue, players)}>Finalizar</Button>
         <Button onPress={hideDialog}>Cancelar</Button>
       </Dialog.Actions>
     </Dialog>
