@@ -1,6 +1,7 @@
 import { playerAlreadyExist } from '../shared/utils/playersUtil';
 import { TEAMS } from '../shared/utils/constants';
-import { UpdateMatch } from '../repository/matchRepository';
+import { UpdateMatch, setWinner } from '../repository/matchRepository';
+import { setPoints } from './playersService';
 
 export function RemoveFromPlayerList(match, playerID) {
   const newPlayersList = match.players.filter(player => {
@@ -53,4 +54,10 @@ export function addPlayerToTeamAndRemoveFromList(match, player, team) {
     match.players = match.players.filter(p => p.id !== player.id);
     UpdateMatch(match);
   };
+}
+
+export function finishMatch(match, winner, players) {
+  match.status = 'terminado';
+  setWinner(match, winner, players);
+  setPoints(match, winner, players);
 }
