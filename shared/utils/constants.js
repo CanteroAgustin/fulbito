@@ -1,5 +1,6 @@
 export const ROL = {
   ADMIN: "admin",
+  TESORERO: "tesorero"
 }
 
 export const TEAMS = {
@@ -10,6 +11,7 @@ export const TEAMS = {
 export const COLLECTIONS = {
   MATCHES: "matches",
   PLAYERS: "usuarios",
+  POOL: "pool",
 }
 
 export const WINNER = {

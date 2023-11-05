@@ -12,6 +12,7 @@ import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProv
 import { db } from '../../config/firebase';
 import MatchAccordion from '../../components/matchAccordion';
 import DatePicker from '../../components/datePicker';
+import { ROL } from '../../shared/utils/constants';
 
 export default function matches() {
   const { user, _, players, setPlayers } = useContext(AuthenticatedUserContext);
@@ -100,7 +101,7 @@ export default function matches() {
               })}
             </List.AccordionGroup>
           </ScrollView>
-          {user.rol === 'admin' && <FAB
+          {(user.rol && user.rol.includes(ROL.ADMIN)) && <FAB
             icon="plus"
             style={styles.fab}
             onPress={() => { setShouldShowForm(true) }}

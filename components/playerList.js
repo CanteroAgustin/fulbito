@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { StyleSheet, View } from "react-native";
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import { Chip } from 'react-native-paper';
+import { ROL } from '../shared/utils/constants';
 
 export default function PlayerList({ match, setSelectedPlayer, setShowConfirmDialog }) {
 
@@ -14,7 +15,7 @@ export default function PlayerList({ match, setSelectedPlayer, setShowConfirmDia
     <View>
       {match.players.map((player, index) => {
         return (
-          <Chip style={styles.chip} key={player.id} disabled={(!(player.id === user.id) && user.rol != 'admin')} mode='outlined' icon="account"
+          <Chip style={styles.chip} key={player.id} disabled={(!(player.id === user.id) && !user.rol.includes(ROL.ADMIN))} mode='outlined' icon="account"
             onPress={() => handleOnClick(player)}>{index + 1}-{player.apodo} ({player.posicion})</Chip>
         )
       })}
