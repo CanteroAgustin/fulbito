@@ -23,7 +23,7 @@ export default function FormGuest({ match, closeGuestModalEvent }) {
     guest.id = uuid.v4();
     guest.apodo = data.apodo;
     guest.posicion = pos;
-    guest.rol = 'invitado';
+    guest.rol = ['invitado'];
     AddToPlayerList(match, guest);
     closeGuestModalEvent();
   };

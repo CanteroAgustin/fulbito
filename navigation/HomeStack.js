@@ -6,7 +6,7 @@ import { IconButton } from 'react-native-paper';
 
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import HomePage from "../pages/HomePage";
-import Version from "../components/version"
+import Pool from "../components/pool";
 
 const Stack = createStackNavigator();
 
@@ -29,7 +29,7 @@ export default function HomeStack() {
         title: '',
         headerRightContainerStyle: styles.headerRight,
         headerStyle: {},
-        headerLeft: () => (<Version></Version>),
+        headerLeft: () => (<Pool />),
         headerRight: () => (
           <IconButton
             iconColor="#1B5E20"

@@ -52,7 +52,7 @@ export default function MatchAccordion({ match, index }) {
       <Divider />
       <View style={styles.playerListContainer}>
         <Text style={styles.playerListTitle}>Jugadores:</Text>
-        {user.rol == ROL.ADMIN && <IconButton
+        {(user.rol && user.rol.includes(ROL.ADMIN)) && <IconButton
           style={styles.addGuestIconButton}
           icon="account-question"
           iconColor='#1B5E20'
@@ -60,7 +60,7 @@ export default function MatchAccordion({ match, index }) {
           mode="contained-tonal"
           onPress={() => setGuestModalVisible(!guestModalVisible)}
         />}
-        {user.rol == "admin" && <IconButton
+        {(user.rol && user.rol.includes(ROL.ADMIN)) && <IconButton
           style={styles.addPlayersToMatchIconButton}
           icon="account-multiple-plus"
           iconColor='#1B5E20'
@@ -85,7 +85,7 @@ export default function MatchAccordion({ match, index }) {
       <Divider />
       <Teams match={match}></Teams>
 
-      {user.rol === ROL.ADMIN && < SegmentedButtons
+      {(user.rol && user.rol.includes(ROL.ADMIN)) && < SegmentedButtons
         style={styles.segmentButton}
         value={value}
         onValueChange={setValue}

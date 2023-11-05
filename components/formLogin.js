@@ -2,13 +2,14 @@ import { useContext, useState } from 'react'
 import { StyleSheet, View, Text, Button } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { SelectList } from 'react-native-dropdown-select-list'
-import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import UserAvatar from 'react-native-user-avatar';
 import loginValidationSchema from '../schemas/login-schema';
 import { db } from '../config/firebase';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 import { Formik } from 'formik';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveUser } from '../services/playersService';
 
 export default function FormLogin({ tempUser }) {
   const { _, setUser } = useContext(AuthenticatedUserContext);
@@ -27,19 +28,7 @@ export default function FormLogin({ tempUser }) {
 
   const setDBUser = async data => {
     let pos = (posicion != 1) ? posicion : 'Arquero'
-    await setDoc(doc(db, "usuarios", tempUser.id), {
-      ...tempUser,
-      "apodo": data.apodo,
-      "status": "ACTIVE",
-      "estadisticas": {
-        "ganados": 0,
-        "empatados": 0,
-        "perdidos": 0,
-        "jugados": 0,
-        "puntos": 0,
-      },
-      posicion: pos
-    });
+    saveUser(tempUser, pos, data.apodo);
     onSnapshot(doc(db, "usuarios", tempUser.id), (doc) => {
       setUser(doc.data());
       AsyncStorage.setItem('@user', JSON.stringify(doc.data()));

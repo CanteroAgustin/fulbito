@@ -1,5 +1,5 @@
 import { NUMBERS, POINTS, WINNER } from '../shared/utils/constants';
-import { UpdatePlayer } from '../repository/players';
+import { saveUserOnDB, updatePlayer } from '../repository/playersRepository';
 
 export function setPoints(match, winner, players) {
   switch (winner) {
@@ -31,7 +31,7 @@ function setPointsToWinner(teamWinner, points, players) {
         } else {
           player.estadisticas.empatados += NUMBERS.ONE;
         }
-        UpdatePlayer(player);
+        updatePlayer(player);
       }
     })
   });
@@ -43,8 +43,12 @@ function setLooser(teamLooser, players) {
       if (looser.id === player.id) {
         player.estadisticas.perdidos += NUMBERS.ONE;
         player.estadisticas.jugados += NUMBERS.ONE;
-        UpdatePlayer(player);
+        updatePlayer(player);
       }
     })
   });
+}
+
+export function saveUser(user, position, apodo) {
+  saveUserOnDB(user, position, apodo);
 }
