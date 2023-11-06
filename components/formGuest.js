@@ -9,7 +9,7 @@ import { AddToPlayerList } from '../services/matchService';
 
 export default function FormGuest({ match, closeGuestModalEvent }) {
   const [posicion, setPosicion] = useState('Arquero');
-  //comment
+
   const positionsList = [
     { key: '1', value: 'Arquero' },
     { key: '2', value: 'Defensor' },
