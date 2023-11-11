@@ -15,7 +15,7 @@ import DatePicker from '../../components/datePicker';
 import { ROL } from '../../shared/utils/constants';
 
 export default function matches() {
-  const { user, _, players, setPlayers } = useContext(AuthenticatedUserContext);
+  const { user } = useContext(AuthenticatedUserContext);
   const [matches, setMatches] = useState([]);
   const [shouldShowForm, setShouldShowForm] = useState(false);
   const [date, setDate] = useState(undefined);
