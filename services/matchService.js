@@ -1,7 +1,9 @@
-import { playerAlreadyExist } from '../shared/utils/playersUtil';
+import { checkIfPlayerExist, playerAlreadyExist } from '../shared/utils/playersUtil';
 import { TEAMS } from '../shared/utils/constants';
 import { UpdateMatch, setWinner } from '../repository/matchRepository';
 import { setPoints } from './playersService';
+import { matchToFinishWhatsappMsg } from '../shared/utils/matchUtil';
+import { shareToWhatsApp } from './whatsappService';
 
 export function RemoveFromPlayerList(match, playerID) {
   const newPlayersList = match.players.filter(player => {
@@ -15,7 +17,7 @@ export function RemoveFromPlayerList(match, playerID) {
 }
 
 export function AddToPlayerList(match, player) {
-  if (!playerAlreadyExist(match.players, player.id)) {
+  if (!checkIfPlayerExist(match, player)) {
     match.players.push(player);
     UpdateMatch(match);
   }
@@ -60,4 +62,7 @@ export function finishMatch(match, winner, players) {
   match.status = 'terminado';
   setWinner(match, winner, players);
   setPoints(match, winner, players);
+  shareToWhatsApp(matchToFinishWhatsappMsg(match, winner));
 }
+
+

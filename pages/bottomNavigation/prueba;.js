@@ -1,2 +1,0 @@
-let edad;
-edad = prompt();

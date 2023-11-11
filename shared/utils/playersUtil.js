@@ -13,7 +13,7 @@ export const mapPlayersToKeyValueList = (players, match) => {
 
 export const playerAlreadyExist = (playersInMatch, playerID) => playersInMatch.find(player => player.id === playerID);
 
-const checkIfPlayerExist = (match, player) => {
+export const checkIfPlayerExist = (match, player) => {
   let exist = false;
   match.players.some(p => {
     if (p.apodo === player.apodo) {

@@ -13,6 +13,8 @@ import PlayerList from './playerList';
 import { AddToPlayerList } from '../services/matchService';
 import { ROL } from '../shared/utils/constants';
 import ConfirmDialog from './confirmDialog';
+import { matchToWhatsappMsg } from '../shared/utils/matchUtil';
+import { shareToWhatsApp } from '../services/whatsappService';
 
 export default function MatchAccordion({ match, index }) {
   const { user } = useContext(AuthenticatedUserContext);
@@ -52,6 +54,14 @@ export default function MatchAccordion({ match, index }) {
       <Divider />
       <View style={styles.playerListContainer}>
         <Text style={styles.playerListTitle}>Jugadores:</Text>
+        {(user.rol && user.rol.includes(ROL.ADMIN)) && <IconButton
+          style={styles.sendIconButton}
+          icon="whatsapp"
+          iconColor='#1B5E20'
+          size={20}
+          mode="contained-tonal"
+          onPress={() => shareToWhatsApp(matchToWhatsappMsg(match))}
+        />}
         {(user.rol && user.rol.includes(ROL.ADMIN)) && <IconButton
           style={styles.addGuestIconButton}
           icon="account-question"
@@ -157,6 +167,11 @@ const styles = StyleSheet.create({
   addGuestIconButton: {
     position: 'absolute',
     end: 100,
+    top: 5
+  },
+  sendIconButton: {
+    position: 'absolute',
+    end: 150,
     top: 5
   },
   segmentButton: {
