@@ -19,7 +19,7 @@ export default function DatePicker(props) {
   const onConfirm = useCallback(
     ({ hours, minutes }) => {
       setVisible(false);
-      props.hourEvent(hours + ":" + minutes);
+      props.hourEvent(String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0'));
     },
     [setVisible]
   );
@@ -60,7 +60,7 @@ export default function DatePicker(props) {
           onDismiss={onDismiss}
           onConfirm={onConfirm}
           hours={12}
-          minutes={14}
+          minutes={60}
         />
       </View>
     </SafeAreaProvider>
