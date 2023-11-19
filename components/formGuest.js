@@ -6,6 +6,8 @@ import loginValidationSchema from '../schemas/login-schema';
 import { Formik } from 'formik';
 import uuid from 'react-native-uuid';
 import { AddToPlayerList } from '../services/matchService';
+import { toInformPlayerAddedMsg } from '../shared/utils/matchUtil';
+import { shareToWhatsApp } from '../services/whatsappService';
 
 export default function FormGuest({ match, closeGuestModalEvent }) {
   const [posicion, setPosicion] = useState('Arquero');
@@ -25,6 +27,7 @@ export default function FormGuest({ match, closeGuestModalEvent }) {
     guest.posicion = pos;
     guest.rol = ['invitado'];
     AddToPlayerList(match, guest);
+    shareToWhatsApp(toInformPlayerAddedMsg(match, guest));
     closeGuestModalEvent();
   };
 

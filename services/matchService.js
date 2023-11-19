@@ -2,7 +2,7 @@ import { checkIfPlayerExist, playerAlreadyExist } from '../shared/utils/playersU
 import { TEAMS } from '../shared/utils/constants';
 import { UpdateMatch, setWinner } from '../repository/matchRepository';
 import { setPoints } from './playersService';
-import { matchToFinishWhatsappMsg } from '../shared/utils/matchUtil';
+import { matchToFinishWhatsappMsg, toInformPlayerAddedMsg } from '../shared/utils/matchUtil';
 import { shareToWhatsApp } from './whatsappService';
 
 export function RemoveFromPlayerList(match, playerID) {
@@ -20,6 +20,7 @@ export function AddToPlayerList(match, player) {
   if (!checkIfPlayerExist(match, player)) {
     match.players.push(player);
     UpdateMatch(match);
+    shareToWhatsApp(toInformPlayerAddedMsg(match, player));
   }
 }
 

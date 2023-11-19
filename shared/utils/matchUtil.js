@@ -10,3 +10,18 @@ export const matchToFinishWhatsappMsg = (match, winner) => {
   const lineOne = `🏆 Ganador: ${winner}`;
   return encodeURIComponent(`${lineZero}\r\n${lineOne}`)
 }
+
+export const toInformPlayerAddedMsg = (match, player) => {
+  const lineZero = `${player.apodo} se acaba de sumar al partido 💪`;
+  const lineOne = `⚽ ${match.lugar} ${match.fecha}`;
+  const lineTwo = `Jugadores: ${JSON.stringify(match.players.map((player) => player.apodo))}`;
+  return encodeURIComponent(`${lineZero}\r\n${lineOne}\r\n${lineTwo}`)
+}
+
+
+
+export const toInformMatchCreatedMsg = (fecha, lugar, user) => {
+  const lineZero = `${user.apodo} acaba de armar partido, sumate https://fulbitosecla.web.app/`;
+  const lineOne = `⚽ ${fecha} ${lugar}`;
+  return encodeURIComponent(`${lineZero}\r\n${lineOne}`)
+}

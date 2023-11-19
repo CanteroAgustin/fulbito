@@ -13,7 +13,7 @@ import PlayerList from './playerList';
 import { AddToPlayerList } from '../services/matchService';
 import { ROL } from '../shared/utils/constants';
 import ConfirmDialog from './confirmDialog';
-import { matchToWhatsappMsg } from '../shared/utils/matchUtil';
+import { matchToWhatsappMsg, toInformPlayerAddedMsg } from '../shared/utils/matchUtil';
 import { shareToWhatsApp } from '../services/whatsappService';
 
 export default function MatchAccordion({ match, index }) {
@@ -42,6 +42,7 @@ export default function MatchAccordion({ match, index }) {
   const addPlayerToMatch = async player => {
     setShouldShowPlayersList(false);
     AddToPlayerList(match, player);
+    shareToWhatsApp(toInformPlayerAddedMsg(match, player));
   }
 
   const closeGuestModalEvent = () => {

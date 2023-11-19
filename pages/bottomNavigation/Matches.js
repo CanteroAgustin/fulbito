@@ -13,6 +13,8 @@ import { db } from '../../config/firebase';
 import MatchAccordion from '../../components/matchAccordion';
 import DatePicker from '../../components/datePicker';
 import { ROL } from '../../shared/utils/constants';
+import { shareToWhatsApp } from '../../services/whatsappService';
+import { toInformMatchCreatedMsg } from '../../shared/utils/matchUtil';
 
 export default function matches() {
   const { user } = useContext(AuthenticatedUserContext);
@@ -48,6 +50,7 @@ export default function matches() {
       "status": 'pendiente',
       "players": []
     });
+    shareToWhatsApp(toInformMatchCreatedMsg(fecha, values.lugar, user));
     setShouldShowForm(false);
   }
 
