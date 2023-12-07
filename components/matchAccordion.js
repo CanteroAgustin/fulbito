@@ -13,6 +13,7 @@ import PlayerList from './playerList';
 import { AddToPlayerList } from '../services/matchService';
 import { ROL } from '../shared/utils/constants';
 import ConfirmDialog from './confirmDialog';
+import ConfirmSendWhatsappDialog from './confirmSendWhatsappDialog';
 import { matchToWhatsappMsg, toInformPlayerAddedMsg } from '../shared/utils/matchUtil';
 import { shareToWhatsApp } from '../services/whatsappService';
 
@@ -20,6 +21,8 @@ export default function MatchAccordion({ match, index }) {
   const { user } = useContext(AuthenticatedUserContext);
   const [cancelConfirmationVisible, setCancelConfirmationVisible] = useState(false);
   const [finishConfirmationVisible, setFinishConfirmationVisible] = useState(false);
+  const [confirmSendWhatsappVisible, setConfirmSendWhatsappVisible] = useState(false);
+  const [confirmSendWhatsapp, setConfirmSendWhatsapp] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [value, setValue] = useState('');
   const [shouldShowPlayersList, setShouldShowPlayersList] = useState(false);
@@ -35,6 +38,10 @@ export default function MatchAccordion({ match, index }) {
     setShowConfirmDialog(false);
   };
 
+  const hideConfirmWhatsappDialog = () => {
+    setConfirmSendWhatsappVisible(false);
+  };
+
   const addToMatch = async () => {
     setShouldShowPlayersList(!shouldShowPlayersList);
   }
@@ -42,11 +49,16 @@ export default function MatchAccordion({ match, index }) {
   const addPlayerToMatch = async player => {
     setShouldShowPlayersList(false);
     AddToPlayerList(match, player);
-    shareToWhatsApp(toInformPlayerAddedMsg(match, player));
   }
 
   const closeGuestModalEvent = () => {
     setGuestModalVisible(false);
+  }
+
+  const addMeToPlayerList = (match, user) => {
+    AddToPlayerList(match, user)
+    setConfirmSendWhatsappVisible(true);
+    setConfirmSendWhatsapp(toInformPlayerAddedMsg(match, user));
   }
 
   return (<View key={match.id}>
@@ -85,7 +97,7 @@ export default function MatchAccordion({ match, index }) {
           iconColor='#1B5E20'
           size={20}
           mode="contained-tonal"
-          onPress={() => AddToPlayerList(match, user)}
+          onPress={() => addMeToPlayerList(match, user)}
         />
         {shouldShowPlayersList ? <PlayersListSelect addPlayerToMatch={addPlayerToMatch} match={match} /> : null}
       </View>
@@ -123,8 +135,10 @@ export default function MatchAccordion({ match, index }) {
       {selectedPlayer &&
         <ConfirmDialog title="Confirmar accion" hideDialog={hideConfirmDialog} visible={showConfirmDialog} match={match} player={selectedPlayer} />
       }
+      {confirmSendWhatsappVisible &&
+        <ConfirmSendWhatsappDialog title="Enviar por whatsApp" text={"Queres informar al grupo?"} visible={confirmSendWhatsappVisible}
+          hideDialog={hideConfirmWhatsappDialog} match={match} confirmSendWhatsapp={confirmSendWhatsapp} />}
     </List.Accordion>
-
   </View >)
 }
 

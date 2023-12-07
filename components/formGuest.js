@@ -27,7 +27,6 @@ export default function FormGuest({ match, closeGuestModalEvent }) {
     guest.posicion = pos;
     guest.rol = ['invitado'];
     AddToPlayerList(match, guest);
-    shareToWhatsApp(toInformPlayerAddedMsg(match, guest));
     closeGuestModalEvent();
   };
 

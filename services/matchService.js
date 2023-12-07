@@ -20,7 +20,6 @@ export function AddToPlayerList(match, player) {
   if (!checkIfPlayerExist(match, player)) {
     match.players.push(player);
     UpdateMatch(match);
-    shareToWhatsApp(toInformPlayerAddedMsg(match, player));
   }
 }
 
